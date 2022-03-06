@@ -28,7 +28,7 @@ for (const file of fs.readdirSync("./f")) {
         fileMap.set("" + k, file);
     }
 }
-const html = fs.readFileSync("./index.html").toString("utf8").replace("%EX%", exams.map(obj => `[${obj.d}] <a target="_blank" href="/getFile/${obj.k}">${obj.n}</a>`).join("<br/>"));
+const html = fs.readFileSync("./index.html").toString("utf8").replace("%EX%", exams.map(obj => `[${obj.d}] <a target="_blank" href="/f/${obj.k}">${obj.n}</a>`).join("<br/>"));
 
 app.use((req, res, next) => {
     req.secure ? next() : res.redirect("https://" + req.headers.host + req.url);
@@ -40,7 +40,7 @@ app.get("/", (req, res) => {
     res.status(200);
 });
 
-app.get("/getFile/*", (req, res) => {
+app.get("/f/*", (req, res) => {
     let id;
     try {
         id = req.path.split("/")[2];
