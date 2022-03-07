@@ -14,21 +14,17 @@ exams = [];
 const fileMap = new Map();
 
 for (const file of fs.readdirSync("./f")) {
-    let k;
-    do k = Math.floor(Math.random() * 10000000);
-    while (fileMap.has(k));
-
     if (file.endsWith(".pdf")) {
-        na = file.match("(.*)\.pdf")[1].split("_");
+        const [n, d] = file.match("(.*)\.pdf")[1].split("-");
+        console.log(n, d);
         exams.push({
-            k,
-            n: na[0],
-            d: na[1]
+            n,
+            d
         });
-        fileMap.set("" + k, file);
+        fileMap.set(n + ".pdf", file);
     }
 }
-const html = fs.readFileSync("./index.html").toString("utf8").replace("%EX%", exams.map(obj => `[${obj.d}] <a target="_blank" href="/f/${obj.k}">${obj.n}</a>`).join("<br/>"));
+const html = fs.readFileSync("./index.html").toString("utf8").replace("%EX%", exams.map(obj => `[${obj.d}] <a target="_blank" href="/f/${obj.n}.pdf">${obj.n}</a>`).join("<br/>"));
 
 app.use((req, res, next) => {
     req.secure ? next() : res.redirect("https://" + req.headers.host + req.url);
@@ -41,21 +37,21 @@ app.get("/", (req, res) => {
 });
 
 app.get("/f/*", (req, res) => {
-    let id;
+    let n;
     try {
-        id = req.path.split("/")[2];
+        n = decodeURI(req.path.split("/")[2]);
     } catch (e) {
         res.send("Bad Request");
         res.status(400);
         return;
     }
-    const file = fileMap.get(id);
-    if (!file) {
-        res.send("Not Found");
+    try {
+        res.sendFile(path.join(__dirname, "/f/" + fileMap.get(n)));
+    } catch (e) {
+        res.send("File Not Found");
         res.status(404);
         return;
     }
-    res.sendFile(path.join(__dirname, "/f/" + file));
     res.status(200);
 });
 
