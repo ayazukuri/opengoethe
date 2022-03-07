@@ -24,7 +24,7 @@ for (const file of fs.readdirSync("./f")) {
         fileMap.set(n + ".pdf", file);
     }
 }
-const html = fs.readFileSync("./index.html").toString("utf8").replace("%EX%", exams.map(obj => `[${obj.d}] <a target="_blank" href="/f/${obj.n}.pdf">${obj.n.replaceAll("_", " ")}</a>`).join("<br/>"));
+const html = fs.readFileSync("./index.html").toString("utf8").replace("%EX%", exams.map(obj => `[${obj.d}] <a target="_blank" href="/f/${obj.n}.pdf">${obj.n.replace(/_/g, " ")}</a>`).join("<br/>"));
 
 app.use((req, res, next) => {
     req.secure ? next() : res.redirect("https://" + req.headers.host + req.url);
