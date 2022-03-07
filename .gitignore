@@ -1,6 +1,7 @@
+node_modules/
 indexn.html
-f/*
-!f/.gitkeep
+
 ssl/*
 !ssl/.gitkeep
-node_modules/
+static/abi/*
+!static/abi/.gitkeep

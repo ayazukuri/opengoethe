@@ -3,6 +3,19 @@ const path = require("path");
 const fs = require("fs");
 const https = require("https");
 
+const tr = /{%(.+)%}/g;
+function template(html, valmap) {
+    return html.replaceAll(tr, m => valmap[m.substring(2, m.length - 2)] || "");
+}
+
+const templates = {};
+const index = fs.readFileSync("./html/index.html").toString("utf-8");
+for (const file of fs.readdirSync("./html")) {
+    if (!file.endsWith(".html") || file === "index.html") continue;
+    const page = fs.readFileSync("./html/" + file).toString("utf-8");
+    templates[file] = index.replace(`<div id="content"></div>`, `<div id="content">${page}</div>`); 
+}
+
 const app = express();
 
 const credentials = {
@@ -10,48 +23,37 @@ const credentials = {
     key: fs.readFileSync("ssl/key.pem")
 };
 
-exams = [];
-const fileMap = new Map();
-
-for (const file of fs.readdirSync("./f")) {
-    if (file.endsWith(".pdf")) {
-        const [n, d] = file.match("(.*)\.pdf")[1].split("-");
-        console.log(n, d);
-        exams.push({
-            n,
-            d
-        });
-        fileMap.set(n + ".pdf", file);
-    }
-}
-const html = fs.readFileSync("./index.html").toString("utf8").replace("%EX%", exams.map(obj => `[${obj.d}] <a target="_blank" href="/f/${obj.n}.pdf">${obj.n.replace(/_/g, " ")}</a>`).join("<br/>"));
+// MIDDLEWARES & STATIC FILESYSTEM
 
 app.use((req, res, next) => {
     req.secure ? next() : res.redirect("https://" + req.headers.host + req.url);
 });
-app.use(express.static("public"));
+app.use(express.static("static"));
 
 app.get("/", (req, res) => {
-    res.send(html);
+    res.send(template(templates["main.html"], {}));
     res.status(200);
 });
 
-app.get("/f/*", (req, res) => {
-    let n;
+app.get("/abi", (req, res) => {
+    let links;
     try {
-        n = decodeURI(req.path.split("/")[2]);
+        links = fs.readdirSync("./static/abi").filter(v => v.endsWith(".pdf")).map(v => {
+            const s = v.split(".");
+            s.pop();
+            const t = s.join(".").split("-");
+            const date = t.pop();
+            const id = t.join("-").replace(/_/g, " ");
+            return `[${date}] <a target="_blank" href="/abi/${v}">${id}</a>`
+        }).join("<br/>");
     } catch (e) {
-        res.send("Bad Request");
-        res.status(400);
-        return;
+        res.send("Internal Server Error");
+        res.status(500);
     }
-    try {
-        res.sendFile(path.join(__dirname, "/f/" + fileMap.get(n)));
-    } catch (e) {
-        res.send("File Not Found");
-        res.status(404);
-        return;
-    }
+    res.send(template(templates["abi.html"], {
+        "ex": links,
+        "ti": " · Mathematik Abitur"
+    }));
     res.status(200);
 });
 
