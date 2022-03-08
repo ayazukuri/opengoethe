@@ -3,26 +3,38 @@ const { join } = require("path");
 const fs = require("fs");
 const https = require("https");
 
-const { docView } = require("./dirView");
+const templateCommands = require("./templateCommands");
 
 
 /**
  * Takes templated HTML and inserts values for templates.
  * @param {string} html Templated HTML.
- * @param {object} valmap Mapping of (tag) => (value)
+ * @param {object} env Mapping of (tag) => (value)
  * @return {string} HTML with filled templates.
  */
-function template(html, valmap) {
-    return html.replaceAll(/{%(.+)%}/g, m => valmap[m.substring(2, m.length - 2)] || "");
+function template(html, env) {
+    return html
+        .replaceAll(/{%.+?}/g, m => env[m.substring(2, m.length - 1)] || "")
+        .replaceAll(/{\$.+?}/g, m => {
+            const args = m.substring(2, m.length - 1).split(" ");
+            const cmd = args.shift();
+            return templateCommands[cmd](...args);
+        });
 }
 
 /**
- * Prepends " · " to a string.
- * @param {string} title
- * @return {string}
+ * Takes a raw template and extracts definition declarations.
+ * @param {string} html
+ * @return {[string, Map]} Template with definitions removed and the definition Map instance.
  */
-function ti(title) {
-    return " · " + title;
+function extractDef(html) {
+    const def = new Map();
+    const nhtml = html.replaceAll(/{#.+?}/g, m => {
+        const [n, val] = m.substring(2, m.length - 1).split(" ");
+        def.set(n, val);
+        return "";
+    });
+    return [nhtml, def];
 }
 
 /**
@@ -33,16 +45,6 @@ function log(err) {
     const c = new Date();
     const date = c.toLocaleDateString("DE") + " " + c.toLocaleTimeString("DE");
     fs.writeFile(join(__dirname, "logs", date) + ".log", err.stack);
-}
-
-// LOADING HTML TEMPLATES
-
-const templates = {};
-const index = fs.readFileSync(join(__dirname, "./html/index.html")).toString("utf-8");
-for (const file of fs.readdirSync(join(__dirname, "html"))) {
-    if (!file.endsWith(".html") || file === "index.html") continue;
-    const page = fs.readFileSync(join(__dirname, "html", file)).toString("utf-8");
-    templates[file] = index.replace("<div id=\"content\"></div>", `<div id="content">${page}</div>`);
 }
 
 const app = express();
@@ -64,20 +66,27 @@ app.use((err, req, res, next) => {
 });
 app.use(express.static("static"));
 
+// LOADING HTML TEMPLATES
+// INITIALIZING AUTOMATIC PAGES
+
+const templates = new Map();
+const index = fs.readFileSync(join(__dirname, "html/index.html")).toString("utf-8");
+for (const file of fs.readdirSync(join(__dirname, "html"))) {
+    if (!file.endsWith(".htm")) continue;
+    const [page, def] = extractDef(fs.readFileSync(join(__dirname, "html", file)).toString("utf-8"));
+    const html = index.replace("<div id=\"content\"></div>", `<div id="content">${page}</div>`);
+    templates.set(file, { html, def });
+    if (def.has("endpoint")) {
+        app.get(def.get("endpoint"), (req, res) => {
+            res.status(200);
+            res.send(template(html, {}));
+        });
+    }
+}
+
 // ENDPOINTS
 
-app.get("/", (req, res) => {
-    res.status(200);
-    res.send(template(templates["main.html"], {}));
-});
-
-app.get("/abi", (req, res) => {
-    res.status(200);
-    res.send(template(templates["abi.html"], {
-        "ti": ti("Mathematik Abitur"),
-        "ex": docView("abi")
-    }));
-});
+// ---
 
 const httpsServer = https.createServer(credentials, app);
 app.listen(80, () => {
