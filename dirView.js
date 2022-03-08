@@ -15,7 +15,7 @@ function docView(path) {
             const m = v.match(/(.*)-(.*)\.(.+)/);
             m.shift();
             const [fname, tooltip, ext] = m;
-            return `[${ext.toUpperCase()}] <a` + (tooltip ? `title="${tooltip}"` : "") + ` href="/${path}/${v}">${fname.replaceAll("_", "")}</a>`;
+            return `[${ext.toUpperCase()}] <a` + (tooltip ? `title="${tooltip}"` : "") + ` href="/${path}/${v}">${fname.replaceAll("_", " ")}</a>`;
         }).join("<br/>") + "</div>";
 }
 
