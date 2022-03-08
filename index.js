@@ -6,15 +6,29 @@ const https = require("https");
 const dirView = require("./dirView");
 
 
-const tr = /{%(.+)%}/g;
+/**
+ * Takes templated HTML and inserts values for templates.
+ * @param {string} html Templated HTML.
+ * @param {object} valmap Mapping of (tag) => (value)
+ * @return {string} HTML with filled templates.
+ */
 function template(html, valmap) {
-    return html.replaceAll(tr, m => valmap[m.substring(2, m.length - 2)] || "");
+    return html.replaceAll(/{%(.+)%}/g, m => valmap[m.substring(2, m.length - 2)] || "");
 }
 
+/**
+ * Prepends " · " to a string.
+ * @param {string} title
+ * @return {string}
+ */
 function ti(title) {
     return " · " + title;
 }
 
+/**
+ * Logs an error to a file.
+ * @param {Error} err
+ */
 function log(err) {
     const date = (d => d.toLocaleDateString("DE") + " " + d.toLocaleTimeString("DE"))(new Date());
     fs.writeFile(join(__dirname, "logs", date) + ".log", err.stack);
@@ -27,7 +41,7 @@ const index = fs.readFileSync(join(__dirname, "./html/index.html")).toString("ut
 for (const file of fs.readdirSync(join(__dirname, "html"))) {
     if (!file.endsWith(".html") || file === "index.html") continue;
     const page = fs.readFileSync(join(__dirname, "html", file)).toString("utf-8");
-    templates[file] = index.replace(`<div id="content"></div>`, `<div id="content">${page}</div>`); 
+    templates[file] = index.replace("<div id=\"content\"></div>", `<div id="content">${page}</div>`);
 }
 
 const app = express();
