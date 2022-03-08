@@ -3,7 +3,7 @@ const { join } = require("path");
 const fs = require("fs");
 const https = require("https");
 
-const dirView = require("./dirView");
+const { docView } = require("./dirView");
 
 
 /**
@@ -30,7 +30,8 @@ function ti(title) {
  * @param {Error} err
  */
 function log(err) {
-    const date = (d => d.toLocaleDateString("DE") + " " + d.toLocaleTimeString("DE"))(new Date());
+    const c = new Date();
+    const date = c.toLocaleDateString("DE") + " " + c.toLocaleTimeString("DE");
     fs.writeFile(join(__dirname, "logs", date) + ".log", err.stack);
 }
 
@@ -74,7 +75,7 @@ app.get("/abi", (req, res) => {
     res.status(200);
     res.send(template(templates["abi.html"], {
         "ti": ti("Mathematik Abitur"),
-        "ex": dirView("abi")
+        "ex": docView("abi")
     }));
 });
 
