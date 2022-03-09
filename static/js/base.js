@@ -27,3 +27,7 @@ function loadDir(dir, view) {
         console.log(e);
     });
 }
+
+function onEnter(ev, cb) {
+    if (ev.keyCode === 13) cb();
+}

@@ -1,3 +1,7 @@
+/**
+ * Functions handling insertion into templates and extraction of definitions.
+ */
+
 const templateCommands = require("./templateCommands");
 
 
