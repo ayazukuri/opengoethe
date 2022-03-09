@@ -5,23 +5,24 @@
 
 const fs = require("fs");
 const { join } = require("path");
-
+const { dirToHTML } = require("./htmlHelper");
 
 /**
  * Creates a list of documents in the provided directory.
- * @param {string} path Folder in static directory.
+ * @param {string} path Folder in managed directory.
  * @return {string} HTML string containing view.
  */
-function docView(path) {
-    return "<div class=\"dirview\">" +
-    fs.readdirSync(join(__dirname, "static", path), { withFileTypes: true })
-        .filter(v => v.isFile() && !v.name.endsWith(".gitkeep") && v.name.match(/(.*)-(.*)\.(.+)/))
-        .map(({ name: v }) => {
-            const m = v.match(/(.*)-(.*)\.(.+)/);
-            m.shift();
-            const [fname, tooltip, ext] = m;
-            return `[${ext.toUpperCase()}] <a target="_blank" ` + (tooltip ? `title="${tooltip}" ` : "") + `href="/${path}/${v}">${fname.replaceAll("_", " ")}</a>`;
-        }).join("<br/>") + "</div>";
+function dirView(path) {
+    let dir;
+    try {
+        dir = fs.readdirSync(join(__dirname, "managed", path), { withFileTypes: true });
+    } catch (e) {
+        if (e.code === "ENOENT") {
+            fs.mkdirSync(join(__dirname, "managed", path), { recursive: true });
+            return dirView(path);
+        } else throw e;
+    }
+    return `<div class="dir_view" dir="${path}">` + dirToHTML(path, dir) + "</div>";
 }
 
 /**
@@ -34,4 +35,4 @@ function ti(...title) {
     return `<header><h1><a href="/">Informatik Goethe</a>${t}</h1></header>`;
 }
 
-module.exports = { doc_view: docView, ti };
+module.exports = { dir_view: dirView, ti };

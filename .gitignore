@@ -3,7 +3,7 @@ indexn.html
 
 ssl/*
 !ssl/.gitkeep
-static/abi/*
-!static/abi/.gitkeep
 logs/*
 !logs/.gitkeep
+
+managed/*

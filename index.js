@@ -1,41 +1,9 @@
 const express = require("express");
-const { join } = require("path");
+const { join, normalize } = require("path");
 const fs = require("fs");
 const https = require("https");
-
-const templateCommands = require("./templateCommands");
-
-
-/**
- * Takes templated HTML and inserts values for templates.
- * @param {string} html Templated HTML.
- * @param {object} env Mapping of (tag) => (value)
- * @return {string} HTML with filled templates.
- */
-function template(html, env) {
-    return html
-        .replaceAll(/{%.+?}/g, m => env[m.substring(2, m.length - 1)] || "")
-        .replaceAll(/{\$.+?}/g, m => {
-            const args = m.substring(2, m.length - 1).split(" ");
-            const cmd = args.shift();
-            return templateCommands[cmd](...args);
-        });
-}
-
-/**
- * Takes a raw template and extracts definition declarations.
- * @param {string} html
- * @return {[string, Map]} Template with definitions removed and the definition Map instance.
- */
-function extractDef(html) {
-    const def = new Map();
-    const nhtml = html.replaceAll(/{#.+?}/g, m => {
-        const [n, val] = m.substring(2, m.length - 1).split(" ");
-        def.set(n, val);
-        return "";
-    });
-    return [nhtml, def];
-}
+const { template, extractDef } = require("./templating.js");
+const { dirToHTML } = require("./htmlHelper");
 
 /**
  * Logs an error to a file.
@@ -64,7 +32,8 @@ app.use((err, req, res, next) => {
     res.status(500);
     res.send("Internal Server Error");
 });
-app.use(express.static("static"));
+app.use("/static", express.static("static"));
+app.use("/m", express.static("managed"));
 
 // LOADING HTML TEMPLATES
 // INITIALIZING AUTOMATIC PAGES
@@ -86,7 +55,31 @@ for (const file of fs.readdirSync(join(__dirname, "html"))) {
 
 // ENDPOINTS
 
-// ---
+app.get("/dirView", (req, res) => {
+    let dir;
+    try {
+        dir = normalize(req.query["dir"]);
+        if (dir.match(/^\.\.(\/|\\|$)/)) {
+            res.status(403);
+            res.send("Forbidden");
+            return;
+        }
+    } catch (e) {
+        dir = "";
+    }
+    let html;
+    try {
+        html = dirToHTML(dir, fs.readdirSync(join(__dirname, "managed", dir), { withFileTypes: true }));
+    } catch (e) {
+        if (["ENOENT", "ENOTDIR"].includes(e.code)) {
+            res.status(404);
+            res.send("Not Found");
+            return;
+        } else throw e;
+    }
+    res.status(200);
+    res.send(html);
+});
 
 const httpsServer = https.createServer(credentials, app);
 app.listen(80, () => {
