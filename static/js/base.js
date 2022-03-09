@@ -22,7 +22,7 @@ function get(path, query, timeout = 60000) {
 function loadDir(dir, view) {
     get("https://" + h + "/dirView", { dir }).then(xhr => {
         view.innerHTML = xhr.responseText;
-        view.setAttribute("dir", dir);
+        view.setAttribute("dir", view.childNodes[1].value);
     }).catch((e, xhr) => {
         console.log(e);
     });
