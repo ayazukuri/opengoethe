@@ -22,7 +22,7 @@ function dirView(path) {
             return dirView(path);
         } else throw e;
     }
-    return `<div class="dir_view" dir="${path}">` + dirToHTML(path, dir) + "</div>";
+    return `<div class="dir_view darker" dir="${path}">` + dirToHTML(path, dir) + "</div>";
 }
 
 /**

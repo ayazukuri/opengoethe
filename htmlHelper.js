@@ -9,7 +9,8 @@
  * @return {string} HTML.
  */
 function dirToHTML(path, dirList) {
-    return `<button onclick="loadDir(this.parentNode.getAttribute('dir'), this.parentNode)">📁</button> <input onkeypress="onEnter(event, () => loadDir(this.value, this.parentNode))" type="text" name="dir_inp" value="${path.replaceAll(/\\/g, "/")}"><br>` +
+    // <button onclick="loadDir(this.parentNode.getAttribute('dir'), this.parentNode)">📁</button>
+    return `<input autocomplete="off" onkeypress="onEnter(event, () => loadDir(this.value, this.parentNode))" type="text" value="${path.replaceAll(/\\/g, "/")}"><br>` +
         "<a onclick=\"loadDir(this.parentNode.getAttribute('dir') + '/..', this.parentNode)\">./..</a><br>" +
         dirList.sort((a, b) => a.isFile() - b.isFile()).map(v => {
             const { name } = v;
