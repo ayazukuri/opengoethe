@@ -59,9 +59,10 @@ app.get("/dirView", (req, res) => {
     let dir;
     try {
         dir = normalize(req.query["dir"]);
-        if (dir.match(/^\.\.(\/|\\|$)/)) dir = "";
+        if (dir.match(/^\.\.(\/|\\|$)/)) dir = ".";
     } catch (e) {
-        dir = "";
+        res.status(400);
+        res.send("Bad Request");
     }
     let html;
     try {
