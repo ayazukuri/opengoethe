@@ -15,12 +15,10 @@ function dirToHTML(path, dirList) {
             const { name } = v;
             if (v.isFile()) {
                 const m = name.match(/(.*)\.(.+)/);
-                return m ?
-                    `<a title="${name}" target="_blank" href="/m/${path}/${name}">[${m[2].toUpperCase()}] ${m[1].replaceAll("_", " ")}</a>` :
-                    `<a title="${name}" target="_blank" href="/m/${path}/${name}">${name}</a>`;
-            } else {
-                return `<a onclick="loadDir(this.parentNode.parentNode.getAttribute('dir') + '/${name}', this.parentNode.parentNode)">${name}/</a>`;
+                if (m === null) return `<a title="${name}" target="_blank" href="/m/${path}/${name}">${name}</a>`;
+                return `<a title="${name}" target="_blank" href="/m/${path}/${name}">[${m[2].toUpperCase()}] ${m[1].replaceAll("_", " ")}</a>`;
             }
+            return `<a onclick="loadDir(this.parentNode.parentNode.getAttribute('dir') + '/${name}', this.parentNode.parentNode)">${name}/</a>`;
         })
         .join("<br>");
     return `<input autocomplete="off" onkeypress="onEnter(event, () => loadDir(this.value, this.parentNode))" type="text" value="${path.replaceAll(/\\/g, "/")}">

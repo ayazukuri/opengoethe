@@ -3,7 +3,9 @@ const h = window.location.hostname;
 function get(path, query, timeout = 60000) {
     const r = new XMLHttpRequest();
     const q = [];
-    for (const k of Object.keys(query)) if (("" + k).length !== 0 && ("" + query[k]).length !== 0) q.push(encodeURI(k) + "=" + encodeURI(query[k]));
+    for (const k of Object.keys(query))
+        if (k.toString().length !== 0 && query[k].toString().length !== 0)
+            q.push(encodeURIComponent(k) + "=" + encodeURIComponent(query[k]));
     if (q.length === 0) r.open("GET", path);
     else r.open("GET", path + "?" + q.join("&"));
     r.send();
