@@ -22,6 +22,7 @@ function get(path, query, timeout = 60000) {
 function loadDir(dir, view) {
     get("https://" + h + "/dirView", { dir }).then(xhr => {
         view.innerHTML = xhr.responseText;
+        const v = view.querySelector("input").value;
         view.setAttribute("dir", view.querySelector("input").value);
     }).catch((e, xhr) => {
         console.log(e);

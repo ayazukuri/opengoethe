@@ -9,10 +9,9 @@
  * @return {string} HTML.
  */
 function dirToHTML(path, dirList) {
-    // <button onclick="loadDir(this.parentNode.getAttribute('dir'), this.parentNode)">📁</button>
-    return `<input autocomplete="off" onkeypress="onEnter(event, () => loadDir(this.value, this.parentNode))" type="text" value="${path.replaceAll(/\\/g, "/")}"><br>` +
-        "<a onclick=\"loadDir(this.parentNode.getAttribute('dir') + '/..', this.parentNode)\">./..</a><br>" +
-        dirList.sort((a, b) => a.isFile() - b.isFile()).map(v => {
+    const fileList = dirList
+        .sort((a, b) => a.isFile() - b.isFile())
+        .map(v => {
             const { name } = v;
             if (v.isFile()) {
                 const m = name.match(/(.*)\.(.+)/);
@@ -20,9 +19,15 @@ function dirToHTML(path, dirList) {
                     `<a title="${name}" target="_blank" href="/m/${path}/${name}">[${m[2].toUpperCase()}] ${m[1].replaceAll("_", " ")}</a>` :
                     `<a title="${name}" target="_blank" href="/m/${path}/${name}">${name}</a>`;
             } else {
-                return `<a onclick="loadDir(this.parentNode.getAttribute('dir') + '/${name}', this.parentNode)">${name}/</a>`;
+                return `<a onclick="loadDir(this.parentNode.parentNode.getAttribute('dir') + '/${name}', this.parentNode.parentNode)">${name}/</a>`;
             }
-        }).join("<br>");
+        })
+        .join("<br>");
+    return `<input autocomplete="off" onkeypress="onEnter(event, () => loadDir(this.value, this.parentNode))" type="text" value="${path.replaceAll(/\\/g, "/")}">
+            <div class="dir_list">
+                <a onclick="loadDir(this.parentNode.parentNode.getAttribute('dir') + '/..', this.parentNode.parentNode)">./..</a><br>
+                ${fileList}
+            </div>`;
 }
 
 module.exports = { dirToHTML };
