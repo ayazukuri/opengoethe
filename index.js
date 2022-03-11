@@ -12,7 +12,7 @@ const { dirToHTML } = require("./htmlHelper");
 function log(err) {
     const c = new Date();
     const date = c.toLocaleDateString("DE") + " " + c.toLocaleTimeString("DE");
-    fs.writeFile(join(__dirname, "logs", date) + ".log", err.stack);
+    fs.writeFile(join(__dirname, "logs", c.getTime() + ".log"), `${date}\n${err.stack}`, () => {});
 }
 
 const app = express();
@@ -63,6 +63,7 @@ app.get("/dirView", (req, res) => {
     } catch (e) {
         res.status(400);
         res.send("Bad Request");
+        return;
     }
     let html;
     try {
