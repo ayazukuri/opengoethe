@@ -1,4 +1,4 @@
-const h = window.location.hostname;
+const h = "https://" + window.location.hostname;
 
 function get(path, query, timeout = 60000) {
     const r = new XMLHttpRequest();
@@ -17,14 +17,13 @@ function get(path, query, timeout = 60000) {
             }
         };
         setTimeout(() => reject(new Error("Timeout reached during a request."), r), timeout);
-    }); 
+    });
     
 }
 
 function loadDir(dir, view) {
-    get("https://" + h + "/dirView", { dir }).then(xhr => {
+    get(h + "/dirView", { dir }).then(xhr => {
         view.innerHTML = xhr.responseText;
-        const v = view.querySelector("input").value;
         view.setAttribute("dir", view.querySelector("input").value);
     }).catch((e, xhr) => {
         console.log(e);
