@@ -15,10 +15,10 @@ const { dirToHTML } = require("./htmlHelper");
 function dirView(path) {
     let dir;
     try {
-        dir = fs.readdirSync(join(__dirname, "managed", path), { withFileTypes: true });
+        dir = fs.readdirSync(join(__dirname, "..", "managed", path), { withFileTypes: true });
     } catch (e) {
         if (e.code === "ENOENT") {
-            fs.mkdirSync(join(__dirname, "managed", path), { recursive: true });
+            fs.mkdirSync(join(__dirname, "..", "managed", path), { recursive: true });
             return dirView(path);
         } else throw e;
     }
