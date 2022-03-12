@@ -1,7 +1,7 @@
 {
   "name": "inf-goe",
   "version": "1.0.0",
-  "description": "[![Github License](https://img.shields.io/github/license/setetres/evenbettermotherfuckingwebsite.svg)](https://github.com/setetres/evenbettermotherfuckingwebsite/blob/master/LICENSE)",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,8 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.3",
-    "sqlite3": "https://github.com/mapbox/node-sqlite3/tarball/master"
+    "express": "^4.17.3"
   },
   "devDependencies": {
     "eslint": "^8.10.0",
