@@ -1,9 +1,8 @@
 const express = require("express");
-const { join, normalize } = require("path");
+const { join } = require("path");
 const fs = require("fs");
 const https = require("https");
 const { template, extractDef } = require("./templating.js");
-const { dirToHTML } = require("./htmlHelper");
 
 /**
  * Logs an error to a file.
@@ -33,7 +32,6 @@ app.use((err, req, res, next) => {
     res.send("Internal Server Error");
 });
 app.use("/static", express.static("static"));
-app.use("/m", express.static("managed"));
 
 // LOADING HTML TEMPLATES
 // INITIALIZING AUTOMATIC PAGES
@@ -52,32 +50,6 @@ for (const file of fs.readdirSync(join(__dirname, "..", "html"))) {
         });
     }
 }
-
-// ENDPOINTS
-
-app.get("/dirView", (req, res) => {
-    let dir;
-    try {
-        dir = normalize(req.query["dir"]);
-        if (dir.match(/^\.\.(\/|\\|$)/)) dir = ".";
-    } catch (e) {
-        res.status(400);
-        res.send("Bad Request");
-        return;
-    }
-    let html;
-    try {
-        html = dirToHTML(dir, fs.readdirSync(join(__dirname, "..", "managed", dir), { withFileTypes: true }));
-    } catch (e) {
-        if (["ENOENT", "ENOTDIR"].includes(e.code)) {
-            res.status(404);
-            res.send("Not Found");
-            return;
-        } else throw e;
-    }
-    res.status(200);
-    res.send(html);
-});
 
 const httpsServer = https.createServer(credentials, app);
 app.listen(80, () => {
