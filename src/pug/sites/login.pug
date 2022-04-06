@@ -1,0 +1,24 @@
+if define
+    -
+        define("endpoint", "/login");
+else if fetch
+else
+    .d-flex.flex-column.justify-content-center.align-items-center(style="min-height: 75vh;")
+        h2 Login
+        .my-2
+            label.form-label(for="email") Email
+            input.form-control(
+                type="email",
+                id="email",
+                placeholder="name@example.com"
+            )
+        .my-2
+            label.form-label(for="password") Passwort
+            input.form-control(
+                type="password",
+                id="password"
+            )
+        button.btn.btn-primary.px-5.mt-4(
+            type="button",
+            onclick!="submitLogin(document.querySelector('div > input#email').value, document.querySelector('div > input#password').value)"
+        ) Login

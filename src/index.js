@@ -2,11 +2,11 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const sqlite3 = require("sqlite3").verbose();
 const bcrypt = require("bcrypt");
+const pug = require("pug");
 const crypto = require("crypto");
 const { join } = require("path");
 const fs = require("fs");
 const https = require("https");
-const { template, extractDef } = require("./templating.js");
 const Cache = require("./classes/Cache");
 
 /**
@@ -60,38 +60,62 @@ app.use((err, req, res, next) => {
 app.use("/static", express.static(join(__dirname, "../static")));
 app.use("/resource", express.static(join(__dirname, "../resource")));
 
-// LOADING HTML TEMPLATES
-// INITIALIZING AUTOMATIC PAGES
+// LOADING PUG TEMPLATES
 
 const templates = new Map();
 const ver = JSON.parse(fs.readFileSync(join(__dirname, "../package.json").toString("utf-8")));
-const index = fs.readFileSync(join(__dirname, "../html/index.html")).toString("utf-8").replace(/*html*/`<div id="ver"></div>`, /*html*/`<div id="ver">running ${ver.version}</div>`);
-for (const file of fs.readdirSync(join(__dirname, "../html"))) {
-    if (!file.endsWith(".htm")) continue;
-    const [page, def] = extractDef(fs.readFileSync(join(__dirname, "../html", file)).toString("utf-8"));
-    const html = index.replace(
-        /*html*/`<div class="container-fluid" id="content"></div>`,
-        /*html*/`<div class="container-fluid" id="content">${page}</div>`
-    );
-    templates.set(file, { html, def });
-    if (def.has("endpoint")) {
-        app.get(def.get("endpoint"), async (req, res) => {
-            if (def.has("permission_level")) {
-                if (!req.env.loggedIn) {
-                    res.status(401).redirect("https://" + req.headers.host + "/login");
-                    return;
-                }
-                if (def.get("permission_level") <= req.env.user.permissionLevel) {
-                    res.status(200).send(template(html, req.env));
-                } else {
-                    // Some kind of reject page here.
-                    res.status(403).redirect("https://" + req.headers.host + "/?rejected=1");
-                }
-            } else {
-                res.status(200).send(template(html, req.env));
+const indexPugFn = pug.compileFile(join(__dirname, "pug/index.pug"));
+for (const file of fs.readdirSync(join(__dirname, "pug/sites"))) {
+    if (!file.endsWith(".pug")) continue;
+
+    // Save complete template.
+    const pugFn = pug.compileFile(join(__dirname, "pug/sites", file));
+    const templateFn = locals => indexPugFn({ page: pugFn(locals), ver: ver.version });
+    templates.set(file, templateFn);
+
+    // Run define stage.
+    const def = new Map();
+    pugFn({ define: def.set.bind(def) });
+
+    // Handle automated serving.
+    if (!def.has("endpoint")) continue;
+    app.get(def.get("endpoint"), async (req, res) => {
+        if (def.has("permissionLevel")) {
+            if (!req.env.loggedIn) {
+                res.status(401).redirect(`https://${req.headers.host}/login`);
+                return;
             }
+            if (def.get("permissionLevel") > req.env.user.permissionLevel) {
+                res.status(403).redirect(`https://${req.headers.host}/?rejected=1`);
+                return;
+            }
+        }
+
+        // Run fetch stage.
+        let fetches = [];
+        pugFn({ fetch: fetches.push.bind(fetches), req });
+        fetches = fetches.map(({ identifier, passAs, optional, params }) => {
+            return cache.fetch(identifier, params).then(row => {
+                if (!row && !optional) {
+                    throw new Error("Resource not found!");
+                }
+                return [row, passAs];
+            });
         });
-    }
+        let results;
+        try {
+            results = await Promise.all(fetches);
+        } catch (e) {
+            // TODO make 404 page!
+            res.status(404).redirect(`https://${req.headers.host}`);
+            return;
+        }
+        const fetchPass = {};
+        results.forEach(([row, passAs]) => fetchPass[passAs] = row);
+
+        // Send templated file to client.
+        res.status(200).send(templateFn({ env: req.env, f: fetchPass }));
+    });
 }
 
 // ENDPOINTS
@@ -141,29 +165,6 @@ app.get("/auth", async (req, res) => {
         $token: token,
         $user_id: row["id"]
     });
-});
-
-app.get("/user/*", async (req, res) => {
-    let row;
-    if (req.path.match(/\/user\/\~(.*)/)) {
-        const username = req.path.match(/\/user\/\~(.*)/)[1];
-        row = await cache.fetch("profile_by_username", {
-            $username: username
-        });
-    } else {
-        const id = req.path.match(/\/user\/(.*)/)[1];
-        row = await cache.fetch("profile_by_id", {
-            $id: id
-        });
-    }
-    if (!row) {
-        res.status(404).send("Not Found");
-        return;
-    }
-    res.status(200).send(template(templates.get("user.htm").html, {
-        ...row,
-        ...req.env
-    }));
 });
 
 const credentials = {

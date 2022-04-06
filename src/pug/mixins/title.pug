@@ -1,0 +1,15 @@
+include userCard.pug
+
+mixin title(env, title)
+    header
+        h1.d-inline-block
+            a(href="/") Informatik Goethe
+            br
+            | #{title}
+        if env.loggedIn
+            +userDisplayCard(env.user)
+        else
+            button.btn.btn-primary.float-end.px-5(
+                type="button",
+                onclick!="window.location.href = window.location.origin + '/login?from=' + encodeURIComponent(window.location.href)"
+            ) Login

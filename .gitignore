@@ -1,5 +1,4 @@
 node_modules/
-indexn.html
 
 ssl/*
 !ssl/.gitkeep

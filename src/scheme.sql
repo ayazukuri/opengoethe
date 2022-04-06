@@ -10,5 +10,6 @@ CREATE TABLE IF NOT EXISTS user (
     username varchar(36) UNIQUE NOT NULL,
     password_hash CHAR(60) NOT NULL,
     permission_level TINYINT NOT NULL,
-    avatar TINYTEXT
+    avatar TINYTEXT,
+    bio varchar(350)
 );

@@ -1,0 +1,11 @@
+include ../mixins/title.pug
+
+if define
+    -
+        define("endpoint", "/");
+else if fetch
+else
+    +title(env, "")
+    h2 RTKS Sommersemester 2022
+    p Tutor: Flo / ayasaku
+    a(href="/rtks22") Alles zum Tutorium RTKS/2022!
