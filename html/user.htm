@@ -1,0 +1,35 @@
+{$ti Nutzerprofil}
+<div class="row mb-4">
+    <div class="avatar">
+        <img class="avatar" src="/resource/{%avatar}">
+        <img class="rankbox rank{%permission_level}" src="/static/numeric-{%permission_level}.svg">
+    </div>
+    <div class="col">
+        <span style="font-size: 26pt;"><strong>{%username}</strong></span><br>
+        <span style="font-size: 10pt; color: #828282;"><strong>{%id}</strong></span><br>
+        <span style="font-size: 10pt; color: #828282;">beigetreten am {%creation_time}</span><br><br>
+        <button type="button" class="btn btn-info" data-bs-toggle="tooltip" data-bs-placement="top" title="DMail verfassen" onclick="window.location.href=window.location.origin + '/dmail?ref=' + '{%id}'"><strong>💬 DMail</strong></button>
+    </div>
+</div>
+<div class="row mb-3 gx-3" style="min-height: 250px;">
+    <div class="col-12 col-md-6">
+        <div class="text-field h-100">
+            <h4>Beschreibung</h4>
+            {%bio}
+        </div>
+    </div>
+</div>
+<div class="row mb-3 gx-3" style="min-height: 250px;">
+    <div class="col-6 col-md-3">
+        <div class="text-field h-100">
+            <h4>Module</h4>
+            {%classes}
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="text-field h-100">
+            <h4>Links</h4>
+            {%links}
+        </div>
+    </div>
+</div>

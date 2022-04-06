@@ -2,11 +2,10 @@
  * Functions handling insertion into templates and extraction of definitions.
  */
 
-const templateCommands = require("./templateCommands");
-
+const templateCommands = require("./template_commands");
 
 /**
- * Takes templated HTML and inserts values for templates.
+ * Takes an HTML template and returns the templated HTML.
  * @param {string} html Templated HTML.
  * @param {object} env Mapping of (tag) => (value)
  * @return {string} HTML with filled templates.
@@ -17,14 +16,14 @@ function template(html, env) {
         .replaceAll(/{\$.+?}/g, m => {
             const args = m.substring(2, m.length - 1).split(" ");
             const cmd = args.shift();
-            return templateCommands[cmd](...args);
+            return templateCommands[cmd](env, ...args);
         });
 }
 
 /**
- * Takes a raw template and extracts definition declarations.
+ * Takes a template and extracts definition declarations.
  * @param {string} html
- * @return {[string, Map]} Template with definitions removed and the definition Map instance.
+ * @return {[string, Map<string, string>]} Template with definitions removed and the definition Map instance.
  */
 function extractDef(html) {
     const def = new Map();

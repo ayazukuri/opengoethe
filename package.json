@@ -1,14 +1,17 @@
 {
-  "name": "inf-goe",
-  "version": "1.0.0",
-  "description": "",
+  "name": "ifg.rbf",
+  "version": "1.0.0 Merkur",
+  "description": "Informatik Goethe resource board forum for sharing study-related information.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "ayasaku#1871",
+  "license": "GPL-3.0",
   "dependencies": {
+    "bcrypt": "^5.0.1",
+    "cookie-parser": "^1.4.6",
+    "crypto": "^1.0.1",
     "express": "^4.17.3",
     "sqlite3": "https://github.com/mapbox/node-sqlite3/tarball/master"
   },

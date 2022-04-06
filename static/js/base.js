@@ -1,6 +1,11 @@
 const h = "https://" + window.location.hostname;
 
-function get(path, query, timeout = 60000) {
+const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+const tooltipList = tooltipTriggerList.map(tooltipTriggerEl => {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+});
+
+function get(path, query = {}, headers = {}, timeout = 60000) {
     const r = new XMLHttpRequest();
     const q = [];
     for (const k of Object.keys(query))
@@ -8,6 +13,9 @@ function get(path, query, timeout = 60000) {
             q.push(encodeURIComponent(k) + "=" + encodeURIComponent(query[k]));
     if (q.length === 0) r.open("GET", path);
     else r.open("GET", path + "?" + q.join("&"));
+    for (const header of Object.keys(headers)) {
+        r.setRequestHeader(header, headers[header]);
+    }
     r.send();
     return new Promise((resolve, reject) => {
         r.onreadystatechange = () => {
@@ -17,19 +25,31 @@ function get(path, query, timeout = 60000) {
             }
         };
         setTimeout(() => reject(new Error("Timeout reached during a request."), r), timeout);
-    });
-    
+    });   
 }
 
-function loadDir(dir, view) {
-    get(h + "/dirView", { dir }).then(xhr => {
-        view.innerHTML = xhr.responseText;
-        view.setAttribute("dir", view.querySelector("input").value);
-    }).catch((e, xhr) => {
-        console.log(e);
-    });
+function toggle(node) {
+    if (node.style.display === "none") {
+        node.style.display = "block";
+    } else {
+        node.style.display = "none";
+    }
 }
 
 function onEnter(ev, cb) {
     if (ev.keyCode === 13) cb();
+}
+
+function submitLogin(email, password) {
+    get(h + "/auth", {}, {
+        authorization: "Basic " + btoa(email + ":" + password)
+    }).then(r => {
+        try {
+            const res = JSON.parse(r.response);
+            alert("Error " + res.error + "\n" + res.errorMessage);
+        } catch (e) {
+            const from = new URLSearchParams(window.location.search).get("from");
+            window.location.href = from ? decodeURIComponent(from) : "https://" + window.location.hostname;
+        }
+    });
 }

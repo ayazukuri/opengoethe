@@ -16,6 +16,8 @@
         "indent": ["error", 4],
         "object-curly-spacing": ["error", "always"],
         "max-len": "off",
-        "comma-dangle": "off"
+        "comma-dangle": "off",
+        "spaced-comment": ["error", "always", { "exceptions": ["html"] }],
+        "quotes": ["error", "double", { "allowTemplateLiterals": true }]
     }
 }

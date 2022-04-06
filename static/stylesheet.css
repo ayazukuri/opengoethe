@@ -1,0 +1,94 @@
+body {
+    margin: 3% auto;
+    background: #f2f2f2;
+    color: #444444;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.8;
+    text-shadow: 0 1px 0 #ffffff;
+}
+
+#content {
+    min-height: 75vh;
+    max-width: 1240px;
+}
+
+#ver {
+    font-family: Consolas;
+}
+
+h1 > a {
+    text-decoration: none;
+}
+
+header {
+    margin-bottom: 20px;
+}
+
+a {
+    color: #444444;
+}
+
+footer {
+    align-items: center;
+    justify-content: center;
+}
+
+.highlight {
+    background-color: rgba(255, 243, 0, 0.7);
+}
+
+.no-select {
+    user-select: none;
+}
+
+.login-img {
+    float: right;
+    border-radius: 50%;
+    margin-left: 12px;
+    position: relative;
+    object-fit: cover;
+}
+
+.avatar {
+    max-width: 220px;
+    width: 100%;
+    object-fit: cover;
+    position: relative;
+    border-radius: 6px;
+}
+
+.rankbox {
+    width: 45px;
+    height: 45px;
+    position: absolute;
+    left: 12px;
+    bottom: 0;
+    border-radius: 6px;
+}
+
+.rank1 {
+    background-color:rgba(0, 238, 255, 0.45);
+}
+
+.rank2 {
+    background-color:rgba(0, 119, 255, 0.45);
+}
+
+.rank3 {
+    background-color:rgba(9, 255, 0, 0.45);
+}
+
+.rank4 {
+    background-color:rgba(255, 94, 0, 0.45);
+}
+
+.rank5 {
+    background-color:rgba(255, 0, 0, 0.45);
+}
+
+.text-field {
+    background-color: #e4e4e4;
+    border-radius: 6px;
+    padding: 15px;
+}

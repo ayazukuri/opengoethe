@@ -1,0 +1,16 @@
+{#endpoint /login}
+<div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 75vh;">
+    <h2>Login</h2>
+    <div class="my-2">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" placeholder="name@example.com">
+    </div>
+    <div class="my-2">
+        <label for="password" class="form-label">Passwort</label>
+        <input type="password" class="form-control" id="password">
+    </div>
+    <button type="button" class="btn btn-primary px-5 mt-4"
+        onclick="submitLogin(document.querySelector('div > input#email').value, document.querySelector('div > input#password').value)">
+        Login
+    </button>
+</div>
