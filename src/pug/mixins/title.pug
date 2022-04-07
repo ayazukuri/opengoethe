@@ -7,9 +7,9 @@ mixin title(env, title)
             br
             | #{title}
         if env.loggedIn
-            +userDisplayCard(env.user)
+            +userCard(env.user, true)
         else
             button.btn.btn-primary.float-end.px-5(
                 type="button",
-                onclick!="window.location.href = window.location.origin + '/login?from=' + encodeURIComponent(window.location.href)"
+                onclick!=`goto('/login?from=' + encodeURIComponent(window.location.pathname))`
             ) Login

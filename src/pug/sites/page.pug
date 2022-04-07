@@ -1,0 +1,37 @@
+include ../mixins/title.pug
+include ../mixins/userCard.pug
+
+if define
+    -
+        define("endpoint", "/page/*");
+else if fetch
+    -
+        if (req.path.match(/\/page\/([0-9]+)/)) {
+            const id = req.path.match(/\/page\/([0-9]+)/)[1];
+            fetch({
+                identifier: "page_by_id",
+                passAs: "page",
+                optional: false,
+                params: {
+                    $id: id
+                }
+            });
+        } else {
+            const name = req.path.match(/\/page\/(.*)/)[1];
+            fetch({
+                identifier: "page_by_name",
+                passAs: "page",
+                optional: false,
+                params: {
+                    $name: name
+                }
+            });
+        }
+else
+    - const author = { id: f.page.author_id, username: f.page.author_username, permissionLevel: f.page.author_permission_level, avatar: f.page.author_avatar };
+    +title(env, f.page.title)
+    div(style="padding-bottom: 80px;")
+        != md.render(f.page.content)
+    .create-stamp
+        +userCard(author)
+        span.sec-text erstellt am #{new Date(f.page.creation_time).toLocaleDateString("de")}

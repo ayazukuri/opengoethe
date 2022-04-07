@@ -5,24 +5,24 @@ if define
         define("endpoint", "/user/*");
 else if fetch
     -
-        if (req.path.match(/\/user\/\~(.*)/)) {
-            const username = req.path.match(/\/user\/\~(.*)/)[1];
-            fetch({
-                identifier: "profile_by_username",
-                passAs: "profile",
-                optional: false,
-                params: {
-                    $username: username
-                }
-            });
-        } else {
-            const id = req.path.match(/\/user\/(.*)/)[1];
+        if (req.path.match(/\/user\/([0-9]+)/)) {
+            const id = req.path.match(/\/user\/([0-9]+)/)[1];
             fetch({
                 identifier: "profile_by_id",
                 passAs: "profile",
                 optional: false,
                 params: {
                     $id: id
+                }
+            });
+        } else {
+            const username = req.path.match(/\/user\/(.*)/)[1];
+            fetch({
+                identifier: "profile_by_username",
+                passAs: "profile",
+                optional: false,
+                params: {
+                    $username: username
                 }
             });
         }
@@ -39,10 +39,10 @@ else
             span(style="font-size: 26pt;")
                 strong #{f.profile.username}
             br
-            span(style="font-size: 10pt; color: #828282;")
+            span.sec-text
                 strong #{f.profile.id}
             br
-            span(style="font-size: 10pt; color: #828282;") beigetreten am #{new Date(f.profile.creation_time).toLocaleDateString("de")}
+            span.sec-text beigetreten am #{new Date(f.profile.creation_time).toLocaleDateString("de")}
             br
             br
             button.btn.btn-info(
@@ -50,7 +50,7 @@ else
                 data-bs-toggle="tooltip",
                 data-bs-placement="top",
                 title="DMail verfassen",
-                onclick!=`window.location.href = window.location.origin + "/dmail?ref=${f.profile.id}"`
+                onclick!=`goto('/dmail?ref=${f.profile.id}')`
             )
                 strong 💬 DMail
     .row.mb-3.gx-3(style="min-height: 250px;")

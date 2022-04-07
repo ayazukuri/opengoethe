@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS session (
-    token TINYTEXT PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
+    token TINYTEXT UNIQUE NOT NULL,
     user_id BIGINT NOT NULL,
     expiry TIMESTAMP NOT NULL
 );
@@ -13,3 +14,13 @@ CREATE TABLE IF NOT EXISTS user (
     avatar TINYTEXT,
     bio varchar(350)
 );
+
+CREATE TABLE IF NOT EXISTS page (
+    id BIGINT PRIMARY KEY,
+    author_id BIGINT NOT NULL,
+    content TEXT,
+    name varchar(36) UNIQUE NOT NULL,
+    title varchar(36) NOT NULL,
+    img TINYTEXT,
+    description varchar(100) NOT NULL
+)

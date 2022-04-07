@@ -17,7 +17,7 @@ body {
     font-family: Consolas;
 }
 
-h1 > a {
+h1>a {
     text-decoration: none;
 }
 
@@ -47,6 +47,9 @@ footer {
     border-radius: 50%;
     margin-left: 12px;
     position: relative;
+}
+
+img {
     object-fit: cover;
 }
 
@@ -68,27 +71,38 @@ footer {
 }
 
 .rank1 {
-    background-color:rgba(0, 238, 255, 0.45);
+    background-color: rgba(0, 238, 255, 0.45);
 }
 
 .rank2 {
-    background-color:rgba(0, 119, 255, 0.45);
+    background-color: rgba(0, 119, 255, 0.45);
 }
 
 .rank3 {
-    background-color:rgba(9, 255, 0, 0.45);
+    background-color: rgba(9, 255, 0, 0.45);
 }
 
 .rank4 {
-    background-color:rgba(255, 94, 0, 0.45);
+    background-color: rgba(255, 94, 0, 0.45);
 }
 
 .rank5 {
-    background-color:rgba(255, 0, 0, 0.45);
+    background-color: rgba(255, 0, 0, 0.45);
 }
 
 .text-field {
     background-color: #e4e4e4;
     border-radius: 6px;
     padding: 15px;
+}
+
+.sec-text {
+    font-size: 10pt;
+    color: #828282;
+}
+
+.create-stamp {
+    position: absolute;
+    bottom: 0;
+    height: 80px;
 }

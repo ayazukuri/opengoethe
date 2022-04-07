@@ -6,17 +6,19 @@
         3: "btn-outline-success",
         4: "btn-outline-warning",
         5: "btn-outline-danger"
-    }
+    };
 
-mixin userDisplayCard(user)
-    a.btn.float-end.align-items-center.d-flex.position-relative(
-        class=[ENUM_PERMISSION_COLOUR[user.permissionLevel]],
-        href=`/user/${user.id}`,
-        style="height: 60px;"
+mixin userCard(user, floatEnd=false)
+    -
+        const c = [ENUM_PERMISSION_COLOUR[user.permissionLevel]];
+        if (floatEnd) c.push("float-end");
+    button.btn.btn-sm.align-items-center.d-flex.position-relative(
+        class=c,
+        onclick!=`goto('/user/${user.id}')`
     )
-        span(style="font-size: 25px; line-height: 0;") #{user.username}
+        span(style="font-size: 20px; line-height: 0;") #{user.username}
         img.login-img(
             src=`/resource/${user.avatar || "standard_avatar.png"}`,
-            height="50",
-            width="50"
+            height="40",
+            width="40"
         )

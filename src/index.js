@@ -8,6 +8,12 @@ const { join } = require("path");
 const fs = require("fs");
 const https = require("https");
 const Cache = require("./classes/Cache");
+const IDGenerator = require("./classes/IDGenerator");
+
+const md = require("markdown-it")({
+    breaks: true
+});
+const idg = new IDGenerator();
 
 /**
  * Logs an error to a file.
@@ -16,7 +22,7 @@ const Cache = require("./classes/Cache");
 function log(err) {
     const c = new Date();
     const date = c.toLocaleDateString("DE") + " " + c.toLocaleTimeString("DE");
-    fs.writeFile(join(__dirname, "../logs", c.getTime() + ".log"), `${date}\n${err.stack}`, () => {});
+    fs.writeFile(join(__dirname, "../logs", c.getTime() + ".log"), `${date}\n${err.stack}`, () => { });
 }
 
 // DB / FILESYSTEM SETUP
@@ -94,12 +100,18 @@ for (const file of fs.readdirSync(join(__dirname, "pug/sites"))) {
         // Run fetch stage.
         let fetches = [];
         pugFn({ fetch: fetches.push.bind(fetches), req });
-        fetches = fetches.map(({ identifier, passAs, optional, params }) => {
-            return cache.fetch(identifier, params).then(row => {
-                if (!row && !optional) {
-                    throw new Error("Resource not found!");
+        fetches = fetches.map(({ identifier, passAs, optional, params, all }) => {
+            let f;
+            if (all) {
+                f = cache.all(identifier, params);
+            } else {
+                f = cache.fetch(identifier, params);
+            }
+            return f.then(r => {
+                if (!r && !optional) {
+                    throw new Error("Error fetching resource!");
                 }
-                return [row, passAs];
+                return [r, passAs];
             });
         });
         let results;
@@ -114,11 +126,13 @@ for (const file of fs.readdirSync(join(__dirname, "pug/sites"))) {
         results.forEach(([row, passAs]) => fetchPass[passAs] = row);
 
         // Send templated file to client.
-        res.status(200).send(templateFn({ env: req.env, f: fetchPass }));
+        res.status(200).send(templateFn({ env: req.env, f: fetchPass, md }));
     });
 }
 
 // ENDPOINTS
+
+app.get("/", (req, res) => res.redirect(`https://${req.headers.host}/page/main`));
 
 app.get("/auth", async (req, res) => {
     let auth = req.header("authorization");
@@ -162,9 +176,14 @@ app.get("/auth", async (req, res) => {
     // if insert goes wrong.
     res.status(200).cookie("session", token, { sameSite: "strict", secure: true }).send("OK");
     await cache.run("create_session", {
+        $id: idg.id(),
         $token: token,
         $user_id: row["id"]
     });
+});
+
+app.put("/user", (req, res) => {
+
 });
 
 const credentials = {

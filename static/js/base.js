@@ -28,6 +28,11 @@ function get(path, query = {}, headers = {}, timeout = 60000) {
     });   
 }
 
+function goto(where) {
+    window.location.href = window.location.origin + where;
+}
+
+
 function toggle(node) {
     if (node.style.display === "none") {
         node.style.display = "block";
@@ -49,7 +54,11 @@ function submitLogin(email, password) {
             alert("Error " + res.error + "\n" + res.errorMessage);
         } catch (e) {
             const from = new URLSearchParams(window.location.search).get("from");
-            window.location.href = from ? decodeURIComponent(from) : "https://" + window.location.hostname;
+            if (from) {
+                goto(decodeURIComponent(from));
+            } else {
+                goto("/");
+            }
         }
     });
 }
