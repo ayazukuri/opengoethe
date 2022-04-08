@@ -32,22 +32,16 @@ function goto(where) {
     window.location.href = window.location.origin + where;
 }
 
-
-function toggle(node) {
-    if (node.style.display === "none") {
-        node.style.display = "block";
-    } else {
-        node.style.display = "none";
-    }
-}
-
 function onEnter(ev, cb) {
     if (ev.keyCode === 13) cb();
 }
 
-function submitLogin(email, password) {
+function submitLogin(token) {
+    const email = document.querySelector('div > input#email').value;
+    const password = document.querySelector('div > input#password').value;
     get(h + "/auth", {}, {
-        authorization: "Basic " + btoa(email + ":" + password)
+        "authorization": "Basic " + btoa(email + ":" + password),
+        "x-captcha-token": token
     }).then(r => {
         try {
             const res = JSON.parse(r.response);

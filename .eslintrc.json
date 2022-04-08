@@ -1,9 +1,8 @@
 {
     "env": {
-        "browser": true,
-        "commonjs": true,
-        "es2021": true
+        "node": true
     },
+    "sourceType": "module",
     "extends": [
         "google"
     ],
@@ -11,7 +10,6 @@
         "ecmaVersion": "latest"
     },
     "rules": {
-        "quotes": ["error", "double"],
         "arrow-parens": "off",
         "indent": ["error", 4],
         "object-curly-spacing": ["error", "always"],

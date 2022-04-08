@@ -10,15 +10,21 @@ else
             input.form-control(
                 type="email",
                 id="email",
-                placeholder="name@example.com"
+                placeholder="name@example.com",
+                onkeypress!="onEnter(event, (e => e.click.bind(e))(document.getElementById('submit')))"
             )
         .my-2
             label.form-label(for="password") Passwort
             input.form-control(
                 type="password",
-                id="password"
+                id="password",
+                onkeypress!="onEnter(event, (e => e.click.bind(e))(document.getElementById('submit')))"
             )
-        button.btn.btn-primary.px-5.mt-4(
-            type="button",
-            onclick!="submitLogin(document.querySelector('div > input#email').value, document.querySelector('div > input#password').value)"
+        button.btn.btn-primary.px-5.mt-4.g-recaptcha#submit(
+            data-sitekey="6LeV6tkeAAAAAMfxTQY94Xi7nq9RaFicEfNxoj-3",
+            data-callback="submitLogin",
+            type="button"
         ) Login
+        script(
+            src="https://www.google.com/recaptcha/api.js"
+        )

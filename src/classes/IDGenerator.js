@@ -1,4 +1,5 @@
-const crypto = require("crypto");
+import crypto from "crypto";
+
 
 /**
  * Util class for generating resource identifiers.
@@ -34,4 +35,4 @@ class IDGenerator {
     }
 }
 
-module.exports = IDGenerator;
+export default IDGenerator;

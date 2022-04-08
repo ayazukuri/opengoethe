@@ -30,10 +30,9 @@ else
     +title(env, "Nutzerprofil")
     .row.mb-4
         .avatar
-            img.avatar(src=`/resource/${f.profile.avatar}`)
-            img.rankbox(
-                class=[`rank${f.profile.permission_level}`],
-                src=`/static/numeric-${f.profile.permission_level}.svg`
+            img.avatar.rank(
+                src=`/resource/${f.profile.avatar}`
+                class=[`rank${f.profile.permission_level}`]
             )
         .col
             span(style="font-size: 26pt;")

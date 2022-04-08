@@ -1,8 +1,14 @@
-const { promisify } = require("util");
-const { readdirSync, readFileSync } = require("fs");
-const { join } = require("path");
-const sqlite3 = require("sqlite3"); // eslint-disable-line no-unused-vars
-const User = require("./User");
+import { promisify } from "util";
+import { readdirSync, readFileSync } from "fs";
+import { join } from "path";
+import { fileURLToPath } from "url";
+
+import sqlite3 from "sqlite3";
+
+import User from "./User.js";
+
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 /**
  * Database interaction handler with integrated cache.
@@ -127,4 +133,4 @@ class Cache {
     }
 }
 
-module.exports = Cache;
+export default Cache;

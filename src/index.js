@@ -1,19 +1,26 @@
-const express = require("express");
-const cookieParser = require("cookie-parser");
-const sqlite3 = require("sqlite3").verbose();
-const bcrypt = require("bcrypt");
-const pug = require("pug");
-const crypto = require("crypto");
-const { join } = require("path");
-const fs = require("fs");
-const https = require("https");
-const Cache = require("./classes/Cache");
-const IDGenerator = require("./classes/IDGenerator");
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+import {
+    writeFile,
+    readFileSync,
+    readdirSync,
+    existsSync,
+    mkdirSync
+} from "fs";
+import { createServer } from "https";
 
-const md = require("markdown-it")({
-    breaks: true
-});
-const idg = new IDGenerator();
+import express from "express";
+import cookieParser from "cookie-parser";
+import sqlite3 from "sqlite3";
+import bcrypt from "bcrypt";
+import pug from "pug";
+import crypto from "crypto";
+import markdownIt from "markdown-it";
+import nodemailer from "nodemailer";
+
+import Cache from "./classes/Cache.js";
+import IDGenerator from "./classes/IDGenerator.js";
+
 
 /**
  * Logs an error to a file.
@@ -22,18 +29,33 @@ const idg = new IDGenerator();
 function log(err) {
     const c = new Date();
     const date = c.toLocaleDateString("DE") + " " + c.toLocaleTimeString("DE");
-    fs.writeFile(join(__dirname, "../logs", c.getTime() + ".log"), `${date}\n${err.stack}`, () => { });
+    writeFile(join(__dirname, "../logs", c.getTime() + ".log"), `${date}\n${err.stack}`, () => { });
 }
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+
+const md = markdownIt({
+    breaks: true
+});
+const idg = new IDGenerator();
+const htmlTransporter = nodemailer.createTransport({
+    sendmail: true,
+    newline: "unix",
+    path: "sendmail"
+}, {
+    from: "noreply@informatik-goethe.de"
+});
 
 // DB / FILESYSTEM SETUP
 
+sqlite3.verbose();
 const db = new sqlite3.Database("ifg.db");
-db.exec(fs.readFileSync(join(__dirname, "scheme.sql")).toString("utf-8"));
 const cache = new Cache(db);
+db.exec(readFileSync(join(__dirname, "scheme.sql")).toString("utf-8"));
 setInterval(cache.purge.bind(cache), 10000);
 setInterval(cache.run.bind(cache, "purge_sessions"), 3600000);
-if (!fs.existsSync(join(__dirname, "../logs"))) fs.mkdirSync(join(__dirname, "../logs"));
-if (!fs.existsSync(join(__dirname, "../resource"))) fs.mkdirSync(join(__dirname, "../resource"));
+if (!existsSync(join(__dirname, "../logs"))) mkdirSync(join(__dirname, "../logs"));
+if (!existsSync(join(__dirname, "../resource"))) mkdirSync(join(__dirname, "../resource"));
 
 const app = express();
 
@@ -69,9 +91,9 @@ app.use("/resource", express.static(join(__dirname, "../resource")));
 // LOADING PUG TEMPLATES
 
 const templates = new Map();
-const ver = JSON.parse(fs.readFileSync(join(__dirname, "../package.json").toString("utf-8")));
+const ver = JSON.parse(readFileSync(join(__dirname, "../package.json").toString("utf-8")));
 const indexPugFn = pug.compileFile(join(__dirname, "pug/index.pug"));
-for (const file of fs.readdirSync(join(__dirname, "pug/sites"))) {
+for (const file of readdirSync(join(__dirname, "pug/sites"))) {
     if (!file.endsWith(".pug")) continue;
 
     // Save complete template.
@@ -87,6 +109,7 @@ for (const file of fs.readdirSync(join(__dirname, "pug/sites"))) {
     if (!def.has("endpoint")) continue;
     app.get(def.get("endpoint"), async (req, res) => {
         if (def.has("permissionLevel")) {
+            // Site requires user to be authorized.
             if (!req.env.loggedIn) {
                 res.status(401).redirect(`https://${req.headers.host}/login`);
                 return;
@@ -136,7 +159,8 @@ app.get("/", (req, res) => res.redirect(`https://${req.headers.host}/page/main`)
 
 app.get("/auth", async (req, res) => {
     let auth = req.header("authorization");
-    if (auth === undefined) {
+    const recaptchaToken = req.header("x-captcha-token");
+    if ([auth, recaptchaToken].includes(undefined)) {
         res.status(403).send("Authorization Required");
         return;
     }
@@ -182,16 +206,18 @@ app.get("/auth", async (req, res) => {
     });
 });
 
+/*
 app.put("/user", (req, res) => {
-
+    
 });
+*/
 
 const credentials = {
-    cert: fs.readFileSync(join(__dirname, "../ssl/cert.pem")),
-    key: fs.readFileSync(join(__dirname, "../ssl/key.pem"))
+    cert: readFileSync(join(__dirname, "../ssl/cert.pem")),
+    key: readFileSync(join(__dirname, "../ssl/key.pem"))
 };
 
-const httpsServer = https.createServer(credentials, app);
+const httpsServer = createServer(credentials, app);
 app.listen(80, () => {
     console.log("Listening on 80 for HTTP.");
 });

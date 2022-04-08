@@ -61,33 +61,33 @@ img {
     border-radius: 6px;
 }
 
-.rankbox {
-    width: 45px;
-    height: 45px;
-    position: absolute;
-    left: 12px;
-    bottom: 0;
-    border-radius: 6px;
+.rank {
+    border-style: solid;
+    
+}
+
+.rank0 {
+    border-color: rgb(160, 31, 160);
 }
 
 .rank1 {
-    background-color: rgba(0, 238, 255, 0.45);
+    border-color: rgb(0, 238, 255);
 }
 
 .rank2 {
-    background-color: rgba(0, 119, 255, 0.45);
+    border-color: rgb(0, 119, 255);
 }
 
 .rank3 {
-    background-color: rgba(9, 255, 0, 0.45);
+    border-color: rgb(9, 255, 0);
 }
 
 .rank4 {
-    background-color: rgba(255, 94, 0, 0.45);
+    border-color: rgb(255, 94, 0);
 }
 
 .rank5 {
-    background-color: rgba(255, 0, 0, 0.45);
+    border-color: rgb(255, 0, 0);
 }
 
 .text-field {

@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS session (
     id BIGINT PRIMARY KEY,
     token TINYTEXT UNIQUE NOT NULL,
-    user_id BIGINT NOT NULL,
+    user_id BIGINT,
     expiry TIMESTAMP NOT NULL
 );
 
