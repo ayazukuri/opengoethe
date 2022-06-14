@@ -4,5 +4,8 @@ ssl/*
 !ssl/.gitkeep
 logs/
 resource/
+dist/
 
 *.db
+config.json
+test.js

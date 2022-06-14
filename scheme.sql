@@ -23,4 +23,4 @@ CREATE TABLE IF NOT EXISTS page (
     title varchar(36) NOT NULL,
     img TINYTEXT,
     description varchar(100) NOT NULL
-)
+);

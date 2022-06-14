@@ -1,0 +1,21 @@
+.d-flex.flex-column.justify-content-center.align-items-center(style="min-height: 75vh;")
+    h2 Login
+    .my-2
+        label.form-label(for="email") Email
+        input.form-control(
+            type="email",
+            id="email",
+            placeholder="name@example.com",
+            onkeypress!="onEnter(event, (e => e.click.bind(e))(document.getElementById('submit')))"
+        )
+    .my-2
+        label.form-label(for="password") Passwort
+        input.form-control(
+            type="password",
+            id="password",
+            onkeypress!="onEnter(event, (e => e.click.bind(e))(document.getElementById('submit')))"
+        )
+    button.btn.btn-primary.px-5.my-4#submit(
+        onclick!="submitLogin()",
+        type="button"
+    ) Login

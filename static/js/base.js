@@ -36,16 +36,21 @@ function onEnter(ev, cb) {
     if (ev.keyCode === 13) cb();
 }
 
-function submitLogin(token) {
+function enableSubmit() {
+    document.getElementById("submit").disabled = false;
+}
+
+function submitLogin() {
     const email = document.querySelector('div > input#email').value;
     const password = document.querySelector('div > input#password').value;
+    // const token = document.querySelector('div.frc-captcha > input').value;
     get(h + "/auth", {}, {
-        "authorization": "Basic " + btoa(email + ":" + password),
-        "x-captcha-token": token
+        "Authorization": "Basic " + btoa(email + ":" + password),
+        // "X-Frc-Token": token
     }).then(r => {
         try {
             const res = JSON.parse(r.response);
-            alert("Error " + res.error + "\n" + res.errorMessage);
+            alert("Error " + "\n" + res.errorMessage);
         } catch (e) {
             const from = new URLSearchParams(window.location.search).get("from");
             if (from) {
