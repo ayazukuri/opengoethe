@@ -28,6 +28,28 @@ function get(path, query = {}, headers = {}, timeout = 60000) {
     });   
 }
 
+function post(path, body = {}, headers = {}, timeout = 60000) {
+    const r = new XMLHttpRequest();
+    r.open("POST", path);
+    for (const header of Object.keys(headers)) {
+        r.setRequestHeader(header, headers[header]);
+    }
+    try {
+        r.send(JSON.stringify(body));
+    } catch (e) {
+        r.send(body);
+    }
+    return new Promise((resolve, reject) => {
+        r.onreadystatechange = () => {
+            if (r.readyState === XMLHttpRequest.DONE) {
+                if (r.status === 0 || (r.status >= 200 && r.status < 400)) resolve(r);
+                else reject(new Error("Request rejected."), r);
+            }
+        };
+        setTimeout(() => reject(new Error("Timeout reached during a request."), r), timeout);
+    });
+}
+
 function goto(where) {
     window.location.href = window.location.origin + where;
 }
@@ -58,6 +80,47 @@ function submitLogin() {
             } else {
                 goto("/");
             }
+        }
+    });
+}
+
+function submitRegister() {
+    const username = document.querySelector('div > input#username').value;
+    const email = document.querySelector('div > input#email').value;
+    const password = document.querySelector('div > input#password').value;
+    const token = document.querySelector('div.frc-captcha > input').value;
+    post(h + "/register", {
+        username,
+        email,
+        password
+    }, {
+        "Content-Type": "application/json",
+        "X-Frc-Token": token
+    }).then(r => {
+        try {
+            const res = JSON.parse(r.response);
+            alert("Error " + "\n" + res.errorMessage);
+        } catch (e) {
+            alert("Eine Bestätigungsmail wurde an deine Email-Adresse gesendet");
+        }
+    })
+}
+
+function submitTransaction(tKey, approved) {
+    for (const button of document.querySelectorAll("button")) {
+        button.setAttribute("disabled", "");
+    }
+    post(h + "/transaction", {
+        transactionKey: tKey,
+        approved
+    }, {
+        "Content-Type": "application/json"
+    }).then(() => {
+        try {
+            const res = JSON.parse(r.response);
+            alert("Error " + "\n" + res.errorMessage);
+        } catch (e) {
+            goto("/");
         }
     });
 }

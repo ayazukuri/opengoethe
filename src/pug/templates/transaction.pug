@@ -1,0 +1,14 @@
+include ../mixins/title.pug
+
++title(env, "Transaktion")
+.d-flex.flex-column.justify-content-center.align-items-center(style="min-height: 65vh;")
+    .my-2
+        .p !{f.friendlyAction}
+    button.btn.btn-primary.px-5.my-4(
+        type="button",
+        onclick!=`submitTransaction('${f.tKey}', true)`
+    ) Bestätigen
+    button.btn.btn-secondary.px-5.my-4(
+        type="button",
+        onclick!=`submitTransaction('${f.tKey}', false)`
+    ) Ablehnen

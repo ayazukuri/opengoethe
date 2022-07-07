@@ -1,13 +1,14 @@
 import nodemailer from "nodemailer";
+import SendmailTransport from "nodemailer/lib/sendmail-transport";
 import sqlite3 from "sqlite3";
 import express, { ErrorRequestHandler } from "express";
 import cookieParser from "cookie-parser";
+import { promisify } from "util";
 import { compileTemplate, compileFile } from "pug";
 import { readFileSync, mkdirSync, readdirSync, existsSync, writeFile } from "fs";
 import { createServer } from "https";
 import { IDGenerator, DBHandler } from "./classes";
 import { Context, Endpoint } from "./interfaces";
-import SendmailTransport from "nodemailer/lib/sendmail-transport";
 
 function log(err: Error): void {
     const c = new Date();
@@ -31,8 +32,8 @@ async function main() {
 
     sqlite3.verbose();
     const db = new sqlite3.Database(config.sqliteFile);
+    await promisify(db.exec).bind(db)(readFileSync("./scheme.sql").toString("utf-8"));
     const dbh = new DBHandler(db);
-    db.exec(readFileSync("./scheme.sql").toString("utf-8"));
     if (!existsSync("./logs")) mkdirSync("./logs");
     if (!existsSync("./media")) mkdirSync("./media");
 
@@ -41,7 +42,8 @@ async function main() {
         emailTransporter: htmlTransporter,
         dbh,
         templates,
-        config
+        config,
+        transactions: new Map()
     };
 
     // EXPRESS
@@ -67,7 +69,7 @@ async function main() {
                 req.env.user = user;
             } else {
                 req.env.loggedIn = false;
-                res.cookie("session", "", { maxAge: 0 });
+                res.clearCookie("session");
             }
         }
         next();
@@ -102,19 +104,30 @@ async function main() {
         if (!file.endsWith(".js")) continue;
 
         const imp: Endpoint = await import(__dirname + "/endpoints/" + file);
-        app.get(imp.endpoint, async (req, res) => {
-            if (imp.permissionLevel) {
-                if (!req.env.loggedIn) {
-                    res.status(401).redirect("https://" + req.headers.host + "/login");
-                    return;
+        if (imp.get) {
+            app.get(imp.endpoint, async (req, res) => {
+                if (imp.permissionLevel) {
+                    if (!req.env.loggedIn) {
+                        res.status(401).redirect("https://" + req.headers.host + "/login");
+                        return;
+                    }
+                    if (imp.permissionLevel > req.env.user!.permissionLevel) {
+                        res.status(403).redirect("https://" + req.headers.host + "/?rejected=1");
+                        return;
+                    }
                 }
-                if (imp.permissionLevel > req.env.user!.permissionLevel) {
-                    res.status(403).redirect("https://" + req.headers.host + "/?rejected=1");
-                    return;
-                }
-            }
-            await imp.handler(context)(req, res);
-        });
+                await imp.get!(context)(req, res);
+            });
+        }
+        if (imp.post) {
+            app.post(imp.endpoint, imp.post(context));
+        }
+        if (imp.put) {
+            app.put(imp.endpoint, imp.put(context));
+        }
+        if (imp.delete) {
+            app.delete(imp.endpoint, imp.delete(context));
+        }
     }
 
     const credentials = {

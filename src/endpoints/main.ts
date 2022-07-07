@@ -1,7 +1,7 @@
 import { EndpointHandler } from "../interfaces";
 
 export const endpoint = "/";
-export const handler: EndpointHandler = (context) => async (req, res) => {
+export const get: EndpointHandler = (context) => async (req, res) => {
     const users = await context.dbh.all("preview_user", {
         $max: 12
     });

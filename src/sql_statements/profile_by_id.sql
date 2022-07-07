@@ -3,8 +3,7 @@ SELECT
     username,
     permission_level,
     avatar,
-    ((id >> 22) + 1640991600000) AS creation_time,
-    bio
+    ((id >> 22) + 1640991600000) AS creation_time
 FROM
     user
 WHERE

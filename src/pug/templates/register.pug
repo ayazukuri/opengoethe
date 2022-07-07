@@ -1,8 +1,16 @@
 .d-flex.flex-column.justify-content-center.align-items-center(style="min-height: 75vh;")
-    h2 Login
-    h6.text-center Kein Account?
+    h2 Registrieren
+    h6.text-center Du hast einen Account?
         br
-        a(href="/register") Registrieren
+        a(href="/login") Login
+    .my-2
+        label.form-label(for="email") Username
+        input.form-control(
+            type="text",
+            id="username",
+            placeholder="user1234",
+            onkeypress!="onEnter(event, (e => e.click.bind(e))(document.getElementById('submit')))"
+        )
     .my-2
         label.form-label(for="email") Email
         input.form-control(
@@ -19,6 +27,8 @@
             onkeypress!="onEnter(event, (e => e.click.bind(e))(document.getElementById('submit')))"
         )
     button.btn.btn-primary.px-5.my-4#submit(
-        onclick!="submitLogin()",
-        type="button"
-    ) Login
+        onclick!="submitRegister()",
+        type="button",
+        disabled=""
+    ) Registrieren
+    .frc-captcha(data-sitekey=f.siteKey, data-callback="enableSubmit", data-lang="de")

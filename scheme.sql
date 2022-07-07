@@ -11,16 +11,5 @@ CREATE TABLE IF NOT EXISTS user (
     username varchar(36) UNIQUE NOT NULL,
     password_hash CHAR(60) NOT NULL,
     permission_level TINYINT NOT NULL,
-    avatar TINYTEXT,
-    bio varchar(350)
-);
-
-CREATE TABLE IF NOT EXISTS page (
-    id BIGINT PRIMARY KEY,
-    author_id BIGINT NOT NULL,
-    content TEXT,
-    name varchar(36) UNIQUE NOT NULL,
-    title varchar(36) NOT NULL,
-    img TINYTEXT,
-    description varchar(100) NOT NULL
+    avatar TINYTEXT
 );

@@ -7,16 +7,33 @@ export interface Env {
     loggedIn: boolean;
     user?: User;
 }
+
+type TransactionKey = string;
+
+export interface Transaction {
+    id: string;
+    key: TransactionKey;
+    friendlyAction: string;
+    issued: Date;
+    action: () => any;
+}
+
 export interface Context {
     dbh: DBHandler;
     templates: Map<string, compileTemplate>;
     emailTransporter: Transporter;
     idGenerator: IDGenerator;
     config: any;
+    transactions: Map<TransactionKey, Transaction>;
 }
+
 export type EndpointHandler = (context: Context) => (req: Request, res: Response) => Promise<void>;
+
 export interface Endpoint {
-    endpoint: string;
+    endpoint: string | string[];
     permissionLevel?: number;
-    handler: EndpointHandler;
+    get?: EndpointHandler;
+    post?: EndpointHandler;
+    put?: EndpointHandler;
+    delete?: EndpointHandler;
 }

@@ -4,7 +4,7 @@ include ../mixins/title.pug
 .row.mb-4
     .avatar
         img.avatar.rank(
-            src=`/media/${f.profile.id}/${f.profile.avatar}`
+            src=f.profile.avatar ? `/media/${f.profile.id}/${f.profile.avatar}` : "/media/standard_avatar.png"
             class=[`rank${f.profile.permission_level}`]
         )
     .col

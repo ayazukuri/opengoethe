@@ -3,7 +3,7 @@ import crypto from "crypto";
 import { EndpointHandler } from "../interfaces";
 
 export const endpoint = "/auth";
-export const handler: EndpointHandler = (context) => async (req, res) => {
+export const get: EndpointHandler = (context) => async (req, res) => {
     const auth = req.header("Authorization");
     if (!auth) {
         res.status(403).send("Missing Authorization");

@@ -1,7 +1,7 @@
 import { EndpointHandler } from "../interfaces";
 
 export const endpoint = "/user/*";
-export const handler: EndpointHandler = (context) => async (req, res) => {
+export const get: EndpointHandler = (context) => async (req, res) => {
     let profile;
     if (req.path.match(/\/user\/([0-9]+)/)) {
         const id = req.path.match(/\/user\/([0-9]+)/)![1];

@@ -8,17 +8,17 @@
         5: "btn-outline-danger"
     };
 
-mixin userCard(user, floatEnd=false)
+mixin userCard(user)
     -
         const c = [ENUM_PERMISSION_COLOUR[user.permissionLevel]];
-        if (floatEnd) c.push("float-end");
     button.btn.btn-sm.align-items-center.d-flex.position-relative(
         class=c,
         onclick!=`goto('/user/${user.id}')`
+        style="margin-bottom: 5px;"
     )
         span(style="font-size: 20px; line-height: 0;") #{user.username}
         img.login-img(
-            src=`/media/${user.id}/${user.avatar || "standard_avatar.png"}`,
+            src=user.avatar ? `/media/${user.id}/${user.avatar}` : "/media/standard_avatar.png",
             height="40",
             width="40"
         )
