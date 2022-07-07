@@ -3,7 +3,7 @@ node_modules/
 ssl/*
 !ssl/.gitkeep
 logs/
-resource/
+media/
 dist/
 
 *.db

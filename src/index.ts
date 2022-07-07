@@ -1,4 +1,3 @@
-import markdownIt from "markdown-it";
 import nodemailer from "nodemailer";
 import sqlite3 from "sqlite3";
 import express, { ErrorRequestHandler } from "express";
@@ -18,11 +17,8 @@ function log(err: Error): void {
 
 async function main() {
     const config = JSON.parse(readFileSync("./config.json").toString("utf-8"));
-    const md = markdownIt({
-        breaks: true
-    });
     const idg = new IDGenerator();
-    const htmlTransporter = nodemailer.createTransport(<SendmailTransport.Options> ({
+    const htmlTransporter = nodemailer.createTransport(<SendmailTransport.Options>({
         sendmail: true,
         newline: "unix",
         path: "sendmail"
@@ -38,10 +34,9 @@ async function main() {
     const dbh = new DBHandler(db);
     db.exec(readFileSync("./scheme.sql").toString("utf-8"));
     if (!existsSync("./logs")) mkdirSync("./logs");
-    if (!existsSync("./resource")) mkdirSync("./resource");
+    if (!existsSync("./media")) mkdirSync("./media");
 
     const context: Context = {
-        md,
         idGenerator: idg,
         emailTransporter: htmlTransporter,
         dbh,
@@ -77,12 +72,13 @@ async function main() {
         }
         next();
     });
-    app.use(<ErrorRequestHandler> ((err, req, res, next) => {
+    app.use(<ErrorRequestHandler>((err, req, res, next) => {
         log(err);
         res.status(500).send("Internal Server Error");
     }));
     app.use("/static", express.static("./static"));
-    app.use("/resource", express.static("./resource"));
+    // STATIC FOR NOW (make endpoint at some point)
+    app.use("/media", express.static("./media"));
 
     // PUG TEMPLATING
 
@@ -136,5 +132,3 @@ async function main() {
 }
 
 main();
-
-

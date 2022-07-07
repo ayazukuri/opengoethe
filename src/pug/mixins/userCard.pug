@@ -18,7 +18,7 @@ mixin userCard(user, floatEnd=false)
     )
         span(style="font-size: 20px; line-height: 0;") #{user.username}
         img.login-img(
-            src=`/resource/${user.avatar || "standard_avatar.png"}`,
+            src=`/media/${user.id}/${user.avatar || "standard_avatar.png"}`,
             height="40",
             width="40"
         )

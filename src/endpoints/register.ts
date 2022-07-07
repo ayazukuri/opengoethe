@@ -1,7 +1,7 @@
 import { validate } from "email-validator";
 import { EndpointHandler } from "../interfaces";
 
-export const endpoint = "/login";
+export const endpoint = "/register";
 export const handler: EndpointHandler = (context) => async (req, res) => {
     const frcToken = req.header("X-Frc-Token");
     if (!frcToken) {

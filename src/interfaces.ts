@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import MarkdownIt from "markdown-it";
 import { Transporter } from "nodemailer";
 import { compileTemplate } from "pug";
 import { DBHandler, IDGenerator, User } from "./classes";
@@ -10,7 +9,6 @@ export interface Env {
 }
 export interface Context {
     dbh: DBHandler;
-    md: MarkdownIt;
     templates: Map<string, compileTemplate>;
     emailTransporter: Transporter;
     idGenerator: IDGenerator;
