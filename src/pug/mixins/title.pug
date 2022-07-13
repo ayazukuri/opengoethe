@@ -9,10 +9,19 @@ mixin title(env, title)
         if env.loggedIn
             .d-inline-flex.flex-column.float-end
                 +userCard(env.user)
-                button.btn.btn-danger.btn-sm.float-end.px-5(
+                button.btn.btn-outline-danger.btn-sm.float-end.px-4.mt-1(
                     type="button",
                     onclick!=`get('/logout').then(() => location.reload())`
                 ) Logout
+                if env.user.permissionLevel === 0
+                    button.btn.btn-outline-warning.btn-sm.float-end.px-4.mt-1(
+                        type="button",
+                        onclick!=`submitEmailVerificationRequest()`
+                    ) Email bestätigen
+                button.btn.btn-outline-secondary.btn-sm.float-end.px-4.mt-1(
+                    type="button",
+                    onclick!=`goto('/settings')`
+                ) Settings
         else
             button.btn.btn-primary.float-end.px-5(
                 type="button",

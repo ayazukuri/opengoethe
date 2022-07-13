@@ -12,10 +12,12 @@ type TransactionKey = string;
 
 export interface Transaction {
     id: string;
+    userId: string;
     key: TransactionKey;
-    friendlyAction: string;
-    issued: Date;
-    action: () => any;
+    status: "pending" | "approved" | "rejected";
+    action: string;
+    data?: string;
+    friendly?: string;
 }
 
 export interface Context {
@@ -24,7 +26,6 @@ export interface Context {
     emailTransporter: Transporter;
     idGenerator: IDGenerator;
     config: any;
-    transactions: Map<TransactionKey, Transaction>;
 }
 
 export type EndpointHandler = (context: Context) => (req: Request, res: Response) => Promise<void>;

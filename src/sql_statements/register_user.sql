@@ -12,6 +12,6 @@ VALUES
         CAST($id AS BIGINT),
         $email,
         $username,
-        $passwordHash,
+        $password_hash,
         0
-    );
+    )

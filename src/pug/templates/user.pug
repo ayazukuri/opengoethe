@@ -1,10 +1,11 @@
 include ../mixins/title.pug
 
-+title(env, "Nutzerprofil")
++title(env, "User")
 .row.mb-4
-    .avatar
+    .col.col-md-auto
         img.avatar.rank(
-            src=f.profile.avatar ? `/media/${f.profile.id}/${f.profile.avatar}` : "/media/standard_avatar.png"
+            src=`/media/${f.profile.id}/avatar.png`,
+            onerror="this.src='/media/standard_avatar.png';this.onerror='';",
             class=[`rank${f.profile.permission_level}`]
         )
     .col
@@ -14,14 +15,17 @@ include ../mixins/title.pug
         span.sec-text
             strong #{f.profile.id}
         br
-        span.sec-text beigetreten am #{new Date(f.profile.creation_time).toLocaleDateString("de")}
+        span.sec-text beigetreten am #{new Date(Number(f.profile.creation_time)).toLocaleDateString("de")}
         br
         br
         button.btn.btn-info(
             type="button",
             data-bs-toggle="tooltip",
             data-bs-placement="top",
-            title="DMail verfassen",
-            onclick!=`goto('/dmail?ref=${f.profile.id}')`
+            title="Wire verfassen",
+            onclick!=`goto('/wire?ref=${f.profile.id}')`,
+            disabled=""
         )
-            strong 💬 DMail
+            strong 💬 Wire
+h2 Beschreibung
+div(style="font-size: 20px;") #{f.profile.summary}

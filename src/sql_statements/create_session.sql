@@ -1,5 +1,11 @@
 INSERT INTO
-    session
+    `session`
+    (
+        id,
+        token,
+        `user_id`,
+        expiry
+    )
 VALUES
     (
         CAST($id AS BIGINT),

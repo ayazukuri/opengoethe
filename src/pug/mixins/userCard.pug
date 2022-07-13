@@ -11,14 +11,15 @@
 mixin userCard(user)
     -
         const c = [ENUM_PERMISSION_COLOUR[user.permissionLevel]];
-    button.btn.btn-sm.align-items-center.d-flex.position-relative(
+    button.btn.btn-sm.align-items-center.d-flex.flex-row-reverse.position-relative(
         class=c,
         onclick!=`goto('/user/${user.id}')`
-        style="margin-bottom: 5px;"
     )
-        span(style="font-size: 20px; line-height: 0;") #{user.username}
         img.login-img(
-            src=user.avatar ? `/media/${user.id}/${user.avatar}` : "/media/standard_avatar.png",
+            src=`/media/${user.id}/avatar.png`,
+            onerror="this.src='/media/standard_avatar.png';this.onerror='';",
             height="40",
             width="40"
         )
+        span(style="font-size: 20px; line-height: 0;") #{user.username}
+        

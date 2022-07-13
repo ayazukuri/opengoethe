@@ -1,6 +1,6 @@
 {
   "name": "opengoethe",
-  "version": "2.1.0 Venus",
+  "version": "2.2.0 Venus",
   "description": "OpenGoethe resource board for sharing study-related information.",
   "main": "index.js",
   "scripts": {
@@ -14,10 +14,11 @@
     "crypto": "^1.0.1",
     "email-validator": "^2.0.4",
     "express": "^4.17.3",
+    "mariadb": "^3.0.0",
+    "markdown-it": "^13.0.1",
     "node-fetch": "^2.6.7",
     "nodemailer": "^6.7.3",
-    "pug": "^3.0.2",
-    "sqlite3": "https://github.com/mapbox/node-sqlite3/tarball/master"
+    "pug": "^3.0.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

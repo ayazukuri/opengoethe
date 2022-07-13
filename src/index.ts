@@ -1,13 +1,12 @@
 import nodemailer from "nodemailer";
 import SendmailTransport from "nodemailer/lib/sendmail-transport";
-import sqlite3 from "sqlite3";
+import mariadb from "mariadb";
 import express, { ErrorRequestHandler } from "express";
 import cookieParser from "cookie-parser";
-import { promisify } from "util";
 import { compileTemplate, compileFile } from "pug";
 import { readFileSync, mkdirSync, readdirSync, existsSync, writeFile } from "fs";
 import { createServer } from "https";
-import { IDGenerator, DBHandler } from "./classes";
+import { IDGenerator, DBHandler, User } from "./classes";
 import { Context, Endpoint } from "./interfaces";
 
 function log(err: Error): void {
@@ -30,27 +29,28 @@ async function main() {
 
     // DATABASE / FILESYSTEM
 
-    sqlite3.verbose();
-    const db = new sqlite3.Database(config.sqliteFile);
-    await promisify(db.exec).bind(db)(readFileSync("./scheme.sql").toString("utf-8"));
-    const dbh = new DBHandler(db);
+    const pool = mariadb.createPool(config.mariadb);
+    const con = await pool.getConnection();
+    readFileSync("./scheme.sql").toString("utf-8").split("$$;").forEach(con.query.bind(con));
+    await con.release();
+    const dbh = new DBHandler(pool);
     if (!existsSync("./logs")) mkdirSync("./logs");
     if (!existsSync("./media")) mkdirSync("./media");
+    if (!existsSync("./wire")) mkdirSync("./wire");
 
     const context: Context = {
         idGenerator: idg,
         emailTransporter: htmlTransporter,
         dbh,
         templates,
-        config,
-        transactions: new Map()
+        config
     };
 
     // EXPRESS
 
     const app = express();
 
-    // PRE-PROCESING OF REQUESTS
+    // PRE-PROCESSING OF REQUESTS
 
     app.use(express.json());
     app.use(cookieParser());
@@ -63,12 +63,30 @@ async function main() {
     app.use(async (req, res, next) => {
         if ("session" in req.cookies) {
             const token = req.cookies.session;
-            const user = await dbh.user("session", token);
-            if (user) {
+            const userRow = await dbh.fetch(`
+                SELECT
+                    CAST(id AS varchar(50)) AS id,
+                    email,
+                    username,
+                    permission_level,
+                    summary
+                FROM
+                    user
+                WHERE
+                    user.id = (
+                        SELECT
+                            \`user_id\`
+                        FROM
+                            \`session\`
+                        WHERE
+                            \`token\` = ?
+                    );
+                
+            `, token);
+            if (userRow) {
                 req.env.loggedIn = true;
-                req.env.user = user;
+                req.env.user = new User(userRow);
             } else {
-                req.env.loggedIn = false;
                 res.clearCookie("session");
             }
         }
@@ -79,7 +97,6 @@ async function main() {
         res.status(500).send("Internal Server Error");
     }));
     app.use("/static", express.static("./static"));
-    // STATIC FOR NOW (make endpoint at some point)
     app.use("/media", express.static("./media"));
 
     // PUG TEMPLATING

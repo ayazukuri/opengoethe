@@ -24,11 +24,17 @@ html(lang="de")
             crossorigin="anonymous"
         )
         link(
-            href="/static/stylesheet.css"
+            href="https://cdn.jsdelivr.net/npm/simplemde@1.11.2/dist/simplemde.min.css",
+            rel="stylesheet",
+            crossorigin="anonymous"
+        )
+        link(
+            href="/static/stylesheet.min.css"
             rel="stylesheet"
         )
     body
         .container-fluid.position-relative#content !{page}
+            #alert.position-absolute(style="bottom: 0; right: 8%;")
         br
         hr
         footer.d-flex.flex-column
@@ -46,18 +52,4 @@ html(lang="de")
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM",
             crossorigin="anonymous"
         )
-        script(
-            src="/static/js/base.js"
-        )
-        script(
-            type="module",
-            src="https://cdn.jsdelivr.net/npm/friendly-challenge@0.9.1/widget.module.min.js",
-            async="",
-            defer=""
-        )
-        script(
-            nomodule="",
-            src="https://cdn.jsdelivr.net/npm/friendly-challenge@0.9.1/widget.min.js",
-            async="",
-            defer=""
-        )
+        script(src="/static/js/base.min.js")

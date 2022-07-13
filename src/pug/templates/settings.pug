@@ -1,0 +1,51 @@
+include ../mixins/title.pug
+
++title(env, "Settings")
+- const summary = f.user.summary;
+form.flex-column
+    .row.my-2
+        label.form-label.row
+            strong Username
+        .input-group(style="max-width: 300px;")
+            input.form-control#username(
+                type="text",
+                placeholder=f.user.username
+            )
+            button.btn.btn-outline-success(
+                type="button",
+                data-bs-toggle="tooltip",
+                data-bs-placement="top",
+                title="Verfügbarkeit prüfen",
+                onclick!=`checkAvailableUsername()`
+        ) ♻️
+    .row.my-2
+        label.form-label.row
+            strong Email
+        .input-group(style="max-width: 300px;")
+            input.form-control#email(type="email" placeholder=f.user.email)
+    .row.my-2
+        label.form-label
+            strong Avatar
+        img.avatar#avatar(
+            src=`/media/${f.user.id}/avatar.png`,
+            onerror="this.src='/media/standard_avatar.png';this.onerror='';"
+        )
+        input.my-1#avatarFile(
+            type="file",
+            accept="image/x-png,image/jpeg",
+            onchange="previewImage(this, document.querySelector('#avatar'))"
+        )
+    .row.m-1
+        label.form-label
+            strong Beschreibung
+        textarea#summary(
+            value=f.user.summary
+        )
+        script(src="https://cdn.jsdelivr.net/npm/simplemde@1.11.2/dist/simplemde.min.js")
+        script const mde = new SimpleMDE(document.getElementById("summary"));
+        .form-text User sind für die Inhalte auf ihrer User page verantwortlich.
+        button.btn.btn-lg.btn-outline-success.my-2(
+            type="button",
+            onclick!=`submitSettings()`,
+            style="max-width: 200px;"
+        ) Übernehmen

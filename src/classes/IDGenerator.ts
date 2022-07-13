@@ -18,4 +18,11 @@ export class IDGenerator {
         this.c = (this.c + 1) % 64;
         return id.toString();
     }
+
+    tKey() {
+        return crypto.randomBytes(32).toString("base64")
+            .replaceAll(/\+/g, ".")
+            .replaceAll(/\//g, "_")
+            .replaceAll(/=/g, "-");
+    }
 }

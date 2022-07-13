@@ -3,7 +3,7 @@ SELECT
     email,
     username,
     permission_level,
-    avatar
+    summary
 FROM
     user
 WHERE

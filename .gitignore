@@ -4,7 +4,11 @@ ssl/*
 !ssl/.gitkeep
 logs/
 media/
+wire/
 dist/
+
+static/js/base.min.js
+static/stylesheet.min.css
 
 *.db
 config.json

@@ -3,7 +3,8 @@ export interface UserEntry {
     email: string;
     username: string;
     permission_level: 0 | 1 | 2 | 3 | 4 | 5;
-    avatar?: string;
+    summary: string;
+    realname: string;
 }
 
 export class User {
@@ -11,19 +12,19 @@ export class User {
     email: string;
     username: string;
     permissionLevel: 0 | 1 | 2 | 3 | 4 | 5;
-    avatar?: string;
+    summary: string;
 
     constructor({
         id,
         email,
         username,
         permission_level: permissionLevel,
-        avatar
+        summary
     }: UserEntry) {
         this.id = id;
         this.email = email;
         this.username = username;
         this.permissionLevel = permissionLevel;
-        this.avatar = avatar;
+        this.summary = summary;
     }
 }

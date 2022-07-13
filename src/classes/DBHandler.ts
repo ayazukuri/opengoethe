@@ -1,21 +1,17 @@
-import { Database, Statement } from "sqlite3";
-import { readdirSync, readFileSync } from "fs";
-import { promisify } from "util";
+import { Pool, PoolConnection, QueryOptions } from "mariadb";
 import { User } from "./User";
 
-export class DBHandler {
-    db: Database;
-    statements: Map<string, Statement>;
+type InteractionResult<Explicit extends "void" | "unique" | "multi"> = Explicit extends "unique"
+    ? any
+    : Explicit extends "multi"
+        ? any[]
+        : void;
 
-    constructor(db: Database) {
-        this.db = db;
-        this.statements = new Map();
-        for (const file of readdirSync("./src/sql_statements")) {
-            if (!file.endsWith(".sql")) continue;
-            const statement = db.prepare(readFileSync("./src/sql_statements/" + file).toString("utf-8"));
-            const name = file.split(".").slice(0, -1).join(".");
-            this.statements.set(name, statement);
-        }
+export class DBHandler {
+    private pool: Pool;
+
+    constructor(pool: Pool) {
+        this.pool = pool;
     }
 
     async user(by: "id" | "email" | "username" | "session", res: string): Promise<User | null> {
@@ -46,21 +42,28 @@ export class DBHandler {
         return new User(row);
     }
 
-    fetch(identifier: string, params = {}): Promise<any> {
-        const statement = this.statements.get(identifier);
-        if (!statement) throw new Error("Unknown statement.");
-        return promisify<any, any>(statement.get.bind(statement))(params);
+    async interaction<Explicit extends "void" | "unique" | "multi">(...cbs: ((con: PoolConnection) => any)[]): Promise<InteractionResult<Explicit>> {
+        const con: PoolConnection = await this.pool.getConnection();
+        const pr = [];
+        for (const cb of cbs) {
+            pr.push(cb.call(null, con));
+        }
+        const res = await Promise.all(pr);
+        con.release();
+        if (pr.length === 0) return <any>undefined;
+        else if (pr.length === 1) return res[0];
+        return <any>res;
     }
 
-    all(identifier: string, params = {}): Promise<any[]> {
-        const statement = this.statements.get(identifier);
-        if (!statement) throw new Error("Unknown statement.");
-        return promisify<any, any[]>(statement.all.bind(statement))(params);
+    fetch(sql: string | QueryOptions, ...params: any[]): Promise<any> {
+        return this.pool.query(sql, params).then((v) => v[0]);
     }
 
-    run(identifier: string, params = {}): Promise<void> {
-        const statement = this.statements.get(identifier);
-        if (!statement) throw new Error("Unknown statement.");
-        return promisify<any, void>(statement.run.bind(statement))(params);
+    all(sql: string | QueryOptions, ...params: any[]): Promise<any[]> {
+        return this.pool.query(sql, params);
+    }
+
+    run(sql: string, ...params: any[]): Promise<void> {
+        return this.pool.query(sql, params).then(() => undefined);
     }
 }
