@@ -1,9 +1,9 @@
-.d-flex.flex-column.justify-content-center.align-items-center(style="min-height: 75vh;")
+form.d-flex.flex-column.justify-content-center.align-items-center(style="min-height: 75vh;")
     h2 Login
     h6.text-center Kein Account?
         br
         a(href="/register") Registrieren
-    .my-2
+    .my-2.w-25
         label.form-label(for="email") Email
         input.form-control(
             type="email",
@@ -11,7 +11,7 @@
             placeholder="name@example.com",
             onkeypress!="onEnter(event, (e => e.click.bind(e))(document.getElementById('submit')))"
         )
-    .my-2
+    .my-2.w-25
         label.form-label(for="password") Passwort
         input.form-control(
             type="password",

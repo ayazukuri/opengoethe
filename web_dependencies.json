@@ -1,4 +1,6 @@
 {
-    "simplemde.js": "<script src='https://cdn.jsdelivr.net/npm/simplemde@1.11.2/dist/simplemde.min.js'></script>",
-    "simplemde.css": "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/simplemde@1.11.2/dist/simplemde.min.css'>"
+    "widget.min.js": "<script src='https://cdn.jsdelivr.net/npm/friendly-challenge@0.9.1/widget.min.js'></script>",
+    "widget.module.min.js": "<script src='https://cdn.jsdelivr.net/npm/friendly-challenge@0.9.1/widget.module.min.js'></script>",
+    "simplemde.min.js": "<script src='https://cdn.jsdelivr.net/npm/simplemde@1.11.2/dist/simplemde.min.js'></script>",
+    "simplemde.min.css": "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/simplemde@1.11.2/dist/simplemde.min.css'>"
 }

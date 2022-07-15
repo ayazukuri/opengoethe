@@ -102,12 +102,16 @@ async function main() {
     // PUG TEMPLATING
 
     const ver = JSON.parse(readFileSync("./package.json").toString("utf-8"));
-    const indexTemplater = compileFile("./src/pug/index.pug");
+    const indexTemplater = compileFile("./src/pug/index.pug", {
+        doctype: "html"
+    });
     for (const file of readdirSync("./src/pug/templates")) {
         if (!file.endsWith(".pug")) continue;
 
         // Save complete template.
-        const pugFn = compileFile("./src/pug/templates/" + file);
+        const pugFn = compileFile("./src/pug/templates/" + file, {
+            doctype: "html"
+        });
         const template: compileTemplate = (locals) => indexTemplater({
             page: pugFn(locals),
             ver: ver.version

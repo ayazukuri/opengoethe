@@ -120,10 +120,13 @@ function submitLogin() {
 }
 
 function submitRegister() {
+    const form = document.querySelector("form");
+    form.classList.add("was-validated");
+    if (!form.checkValidity()) return;
     disableSubmit();
-    const username = document.querySelector('div > input#username').value;
-    const email = document.querySelector('div > input#email').value;
-    const password = document.querySelector('div > input#password').value;
+    const username = document.getElementById("username").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
     const token = document.querySelector('div.frc-captcha > input').value;
     post(h + "/register", {
         username,
@@ -139,7 +142,7 @@ function submitRegister() {
         } catch (e) {
             goto("/login");
         }
-    })
+    });
 }
 
 function submitTransaction(tKey, approved) {
@@ -178,12 +181,15 @@ function submitEmailVerificationRequest() {
 
 function checkAvailableUsername() {
     const username = document.querySelector("#username").value;
+    const tx = document.querySelector("#availableUsername");
     if (!username) return;
     get(`/user/${username}`).then(r => {
         console.log(r);
-        doAlert(`Der Username "${username}" ist bereits vergeben`, "danger");
+        tx.innerHTML = `Der Username "${username}" ist bereits vergeben.`;
     }).catch(e => {
-        doAlert(`Der Username "${username}" ist verfügbar`, "success");
+        tx.innerHTML = `Der Username "${username}" ist verfügbar.`;
+    }).finally(() => {
+        tx.style = "visibility: visible;";
     });
 }
 
@@ -193,7 +199,7 @@ function importFile(id) {
         input = document.createElement("input");
         input.id = id;
         input.type = "file";
-        input.style="display: none;";
+        input.style = "display: none;";
         input.onchange = () => console.log(Array.from(input.files));
         document.body.appendChild(input);
     }
