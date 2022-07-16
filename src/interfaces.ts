@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Transporter } from "nodemailer";
+import Mail from "nodemailer/lib/mailer";
 import { compileTemplate } from "pug";
 import { DBHandler, IDGenerator, User } from "./classes";
 
@@ -28,7 +29,14 @@ export interface Context {
     config: any;
 }
 
+interface InstantiatorResult {
+    email: Mail.Options;
+    friendly: string;
+}
+
 export type EndpointHandler = (context: Context) => (req: Request, res: Response) => Promise<void>;
+export type TransactionHandler = (context: Context) => (transaction: Transaction, user: User) => Promise<void>;
+export type TransactionInstantiator = (context: Context) => (tKey: string, user: User) => Promise<InstantiatorResult>;
 
 export interface Endpoint {
     endpoint: string | string[];

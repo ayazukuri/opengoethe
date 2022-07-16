@@ -121,9 +121,9 @@ async function main() {
 
     // ENDPOINTS
 
-    for (const file of readdirSync("./dist/endpoints")) {
-        if (!file.endsWith(".js")) continue;
-
+    for (const fileObj of readdirSync("./dist/endpoints", { withFileTypes: true })) {
+        const file = fileObj.name;
+        if (!fileObj.isDirectory() && !file.endsWith(".js")) continue;
         const imp: Endpoint = await import(__dirname + "/endpoints/" + file);
         if (imp.get) {
             app.get(imp.endpoint, async (req, res) => {

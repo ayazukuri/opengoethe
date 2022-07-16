@@ -77,7 +77,7 @@ export const post: EndpointHandler = (context) => async (req, res) => {
         });
         return;
     }
-    const c = await context.dbh.fetch(`
+    const r = await context.dbh.fetch(`
         SELECT
             COUNT(*) AS c
         FROM
@@ -86,7 +86,7 @@ export const post: EndpointHandler = (context) => async (req, res) => {
             email = ? OR
             username = ?;
     `, email, username);
-    if (c !== 0) {
+    if (r.c !== 0n) {
         res.status(200).json({
             "errorMessage": "Dein Username oder deine Email-Adresse wird bereits benutzt"
         });

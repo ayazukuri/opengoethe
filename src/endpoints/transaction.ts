@@ -1,7 +1,9 @@
 import { EndpointHandler } from "../interfaces";
 import { transactionFromDb } from "../helper";
+import { handlers } from "../transactions";
 
 export const endpoint = ["/transaction", "/transaction/*"];
+
 export const get: EndpointHandler = (context) => async (req, res) => {
     const m = req.path.match(/\/transaction\/(.*)/);
     if (!m) {
@@ -40,6 +42,7 @@ export const get: EndpointHandler = (context) => async (req, res) => {
         }
     }));
 };
+
 export const post: EndpointHandler = (context) => async (req, res) => {
     const transaction = transactionFromDb(await context.dbh.fetch(`
         SELECT
@@ -62,6 +65,10 @@ export const post: EndpointHandler = (context) => async (req, res) => {
         res.status(401).send("Forbidden");
         return;
     }
+    if (!(transaction.action in handlers)) {
+        res.status(500).send("Internal Server Error");
+        return;
+    }
     if (!req.body.approved) {
         await context.dbh.run(`
             UPDATE
@@ -74,92 +81,65 @@ export const post: EndpointHandler = (context) => async (req, res) => {
         res.status(200).send("OK");
         return;
     }
-    switch (transaction.action) {
-        case "verify_email":
-            if (req.env.user?.permissionLevel !== 0) {
-                await context.dbh.run(`
-                    UPDATE
-                        \`transaction\`
-                    SET
-                        \`status\` = 2
-                    WHERE
-                        id = CAST(? AS UNSIGNED);
-                `, transaction.id);
-                res.status(401).send("Forbidden");
-                return;
-            }
-            await context.dbh.interaction(async (con) => {
-                await con.query(`
-                    UPDATE
-                        user
-                    SET
-                        permission_level = 1
-                    WHERE
-                        id = CAST(? AS UNSIGNED) AND
-                        permission_level = 0;
-                    
-                `, transaction.userId);
-                await con.query(`
-                    UPDATE
-                        \`transaction\`
-                    SET
-                        \`status\` = 1
-                    WHERE
-                        id = CAST(? AS UNSIGNED);
-                `, transaction.id);
-            });
-            break;
-        default:
-            res.status(501).send("Not Implemented");
-            return;
+    try {
+        await handlers[transaction.action].handle(context)(transaction, req.env.user);
+        await context.dbh.run(`
+            UPDATE
+                \`transaction\`
+            SET
+                \`status\` = 1
+            WHERE
+                id = CAST(? AS UNSIGNED);
+        `, transaction.id);
+        res.status(200).send("OK");
+    } catch (e) {
+        res.status(400).send("Bad Request");
     }
-    res.status(200).send("OK");
 };
+
 export const put: EndpointHandler = (context) => async (req, res) => {
-    if (!req.env.loggedIn) {
+    if (!req.env.user) {
         res.status(403).json("Unauthorized");
         return;
     }
-    switch (req.body.action) {
-        case "verify_email":
-            if (req.env.user?.permissionLevel !== 0) {
-                res.status(400).send("Bad Request");
-                return;
-            }
-            const tKey = context.idGenerator.tKey();
-            await context.dbh.run(`
-                INSERT INTO
-                    \`transaction\` (
-                        id,
-                        \`user_id\`,
-                        \`key\`,
-                        \`status\`,
-                        \`action\`,
-                        \`data\`,
-                        friendly
-                    )
-                VALUES
+    if (!(req.body.action in handlers)) {
+        res.status(501).send("Not Implemented");
+        return;
+    }
+    try {
+        const tKey = context.idGenerator.tKey();
+        const opts = await handlers[req.body.action].instantiate(context)(tKey, req.env.user);
+        await context.dbh.run(`
+            INSERT INTO
+                \`transaction\` (
+                    id,
+                    \`user_id\`,
+                    \`key\`,
+                    \`status\`,
+                    \`action\`,
+                    \`data\`,
+                    friendly
+                )
+            VALUES
                 (
                     CAST(? AS UNSIGNED),
                     CAST(? AS UNSIGNED),
                     ?,
-                    0,
+                    ?,
                     0,
                     null,
                     ?
-                )
-            `, context.idGenerator.id(), req.env.user!.id, tKey, `Email Adresse bestätigen<br><b>${req.env.user!.email}</b>`);
-            await context.emailTransporter.sendMail({
-                to: req.env.user!.email,
-                subject: "Registrierung bestätigen auf OpenGoethe!",
-                text: `Hi ${req.env.user!.username}!\n` +
-                      "Bestätige deine Registrierung bei OpenGoethe unter dem folgenden Link:\n\n" +
-                      `https://${context.config.domain}/transaction/${tKey}`
-            });
-            break;
-        default:
-            res.status(501).send("Not Implemented");
-            return;
+                );
+        `,
+        context.idGenerator.id(),
+        req.env.user.id,
+        tKey,
+        handlers[req.body.action].action,
+        opts.friendly
+        );
+        await context.emailTransporter.sendMail(opts.email);
+        res.status(200).send("OK");
+    } catch (e) {
+        res.status(400).send("Bad Request");
     }
-    res.status(200).send("OK");
 };

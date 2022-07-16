@@ -6,7 +6,7 @@ include ../mixins/title.pug
 .d-flex.flex-column.justify-content-center.align-items-center(style="min-height: 65vh;")
     .my-2
         if f.found && f.status === "pending"
-            p.text-center(style="font-size: 28px;") !{f.friendlyAction}
+            p.text-center(style="font-size: 28px;") #{f.friendlyAction}
         else if !env.loggedIn
             p.text-center(style="font-size: 28px;") Du musst eingeloggt sein um eine Transaktion abzuschließen.
         else

@@ -57,7 +57,7 @@ export const get: EndpointHandler = (context) => async (req, res) => {
                 CAST(? AS UNSIGNED),
                 ?,
                 CAST(? AS UNSIGNED),
-                NOW() + 604
+                FROM_UNIXTIME(UNIX_TIMESTAMP() + 604800)
             );
     `, context.idGenerator.id(), token, row.id);
 };
